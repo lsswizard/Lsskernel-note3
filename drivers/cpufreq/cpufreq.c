@@ -35,6 +35,7 @@
 #include <linux/sched.h>
 
 #include <trace/events/power.h>
+#include <linux/kt_wake_funcs.h>
 
 bool cpufreq_screen_on = true;
 
@@ -57,6 +58,9 @@ static DEFINE_SPINLOCK(cpufreq_driver_lock);
 
 static struct kset *cpufreq_kset;
 static struct kset *cpudev_kset;
+
+bool call_in_progress=false;
+
 
 /*
  * cpu_policy_rwsem is a per CPU reader-writer semaphore designed to cure
@@ -2027,6 +2031,12 @@ no_policy:
 	return ret;
 }
 EXPORT_SYMBOL(cpufreq_update_policy);
+
+void set_call_in_progress(bool state)
+{
+	call_in_progress = state;
+	//pr_alert("CALL IN PROGRESS: %d\n", state);
+}
 
 static int __cpuinit cpufreq_cpu_callback(struct notifier_block *nfb,
 					unsigned long action, void *hcpu)
