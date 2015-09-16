@@ -138,8 +138,6 @@ abort_resume:
 	mutex_unlock(&power_suspend_lock);
 }
 
-bool power_suspended = false;
-
 void set_power_suspend_state(int new_state)
 {
 	unsigned long irqflags;
