@@ -127,13 +127,21 @@ int pm_autosleep_set_state(suspend_state_t state)
 		pm_wakep_autosleep_enabled(true);
 		queue_up_suspend_work();
 
+#ifdef CONFIG_POWERSUSPEND		
+		// Yank555.lu : add hook to handle powersuspend tasks (sleep)		
+		set_power_suspend_state_autosleep_hook(POWER_SUSPEND_ACTIVE);
 #ifndef CONFIG_PM_SYNC_BEFORE_SUSPEND
 		printk(KERN_INFO "PM: Syncing filesystems ... ");
 		sys_sync();
 		printk("done.\n");
 #endif
+#endif
 	} else {
 		pm_wakep_autosleep_enabled(false);
+#ifdef CONFIG_POWERSUSPEND		
+		// Yank555.lu : add hook to handle powersuspend tasks (wakeup)		
+		set_power_suspend_state_autosleep_hook(POWER_SUSPEND_INACTIVE);		
+#endif
 	}
 
 	mutex_unlock(&autosleep_lock);
