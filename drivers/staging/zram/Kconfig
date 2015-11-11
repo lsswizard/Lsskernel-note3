@@ -23,3 +23,32 @@ config ZRAM_DEBUG
 	help
 	  This option adds additional debugging code to the compressed
 	  RAM block device driver.
+	  
+choice ZRAM_COMPRESS
+	prompt "compression method"
+	depends on ZRAM
+	default ZRAM_LZO
+	help
+            Select the compression method used by zram.
+config ZRAM_LZ4
+	bool "LZ4 compression"
+	select LZ4_COMPRESS
+	select LZ4_DECOMPRESS
+	help
+	      LZ4 is the default choice. Tested and working well.	    
+config ZRAM_LZO
+	bool "LZO compression"
+	select LZO_COMPRESS
+	select LZO_DECOMPRESS
+	help
+	      LZO is the default choice. Tested and working well.
+config ZRAM_SNAPPY
+	bool "Snappy compression"
+	select SNAPPY_COMPRESS
+	select SNAPPY_DECOMPRESS
+	help
+	      Use snappy compression algorithm from google.
+	      Snappy compresses a bit worse (around ~2%) but much (~2x) faster,
+	      at least on x86-64.
+endchoice	  
+	  
