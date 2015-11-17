@@ -20,6 +20,7 @@
 bool selinux_is_enabled(void)
 {
 
+#if defined(CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE)
 	return selinux_enabled;
 
 }
@@ -27,8 +28,9 @@ EXPORT_SYMBOL_GPL(selinux_is_enabled);
 
 bool selinux_is_enforcing(void)
 {
-#ifdef CONFIG_ALWAYS_ENFORCE
-	return true;
+
+#elif defined(CONFIG_SECURITY_SELINUX_NEVER_ENFORCE)
+	return false;
 #else
 	return selinux_enforcing;
 #endif
