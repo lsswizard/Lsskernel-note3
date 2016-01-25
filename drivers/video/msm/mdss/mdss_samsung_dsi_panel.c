@@ -39,6 +39,10 @@
 #include <asm/uaccess.h>
 #endif
 
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#endif
+
 #include <asm/system_info.h>
 #if defined(CONFIG_MIPI_LCD_S6E3FA0_FORCE_VIDEO_MODE)
 #define CONFIG_FB_MSM_MIPI_SAMSUNG_OCTA_CMD_FULL_HD_PT_PANEL 1
@@ -68,11 +72,8 @@ static struct dsi_cmd nv_date_read_cmds;
 char mdate_buffer[10];
 #endif
 
-#define MPDECISION_RESTART 20
-static int screenoff_cnt;
 unsigned int Lpanel_colors = 2;
 extern void panel_load_colors(unsigned int val);
-extern bool cpufreq_screen_on;
 static struct dsi_buf dsi_panel_tx_buf;
 static struct dsi_buf dsi_panel_rx_buf;
 static struct dsi_cmd nv_mdnie_read_cmds;
@@ -2385,6 +2386,10 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_POWERSUSPEND
+	set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE); // Yank555.lu : add hook to handle powersuspend tasks (wakeup)
+#endif
+
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 			panel_data);
 
@@ -2515,6 +2520,10 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 
 #ifdef LDI_FPS_CHANGE
 	ldi_fps_state = MIPI_SUSPEND_STATE;
+#endif
+
+#ifdef CONFIG_POWERSUSPEND
+	set_power_suspend_state_panel_hook(POWER_SUSPEND_ACTIVE); // Yank555.lu : add hook to handle powersuspend tasks (sleep)
 #endif
 
 	mipi_samsung_disp_send_cmd(PANEL_DISP_OFF, true);
@@ -3724,25 +3733,6 @@ static int samsung_dsi_panel_event_handler(int event)
 			pr_info("[jc] [dsi event] %d: MDNIE_DEFAULT_UPDATE + is_negative_on()\n", event);
 			break;
 #endif
-		case MDSS_EVENT_SUSPEND:
-			cpufreq_screen_on = false;
-			// HACK - restart mpdecision at regular screen off interval
-			screenoff_cnt++;
-			if (unlikely(screenoff_cnt > MPDECISION_RESTART)) {
-				struct task_struct *tsk;
-				pr_info("[imoseyon] mpdecision restarting (screenoff_cnt = %d, resetting to 0)\n", screenoff_cnt);
-				screenoff_cnt = 0;
-				for_each_process(tsk)
-					if (!strcmp(tsk->comm,"mpdecision")) send_sig(SIGKILL, tsk, 0);
-			}
-			pr_info("[jc] [dsi event] %d: SUSPEND (cpufreq_screen_on = %d, screenoff_cnt = %d)\n", event, cpufreq_screen_on, screenoff_cnt);
-			break;
-		case MDSS_EVENT_RESUME:
-			cpufreq_screen_on = true;
-			pr_info("[jc] [dsi event] %d: RESUME (cpufreq_screen_on = %d)\n", event, cpufreq_screen_on);
-			break;
-		case MDSS_EVENT_RESET:
-			break;
 		default:
 			pr_info("[jc] [dsi event] %d: unknown panel event\n", event);
 			break;
@@ -3923,10 +3913,6 @@ int mdss_dsi_panel_init(struct device_node *node, struct mdss_dsi_ctrl_pdata *ct
 
 	if (!node)
 		return -ENODEV;
-
-	cpufreq_screen_on = true;
-	screenoff_cnt = 0;
-	pr_info("[jc] [panel init] cpufreq_screen_on = %d, screenoff_cnt = %d\n", cpufreq_screen_on, screenoff_cnt);
 
 	panel_name = of_get_property(node, "label", NULL);
 	if (!panel_name)
