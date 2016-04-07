@@ -234,11 +234,13 @@ void (*arm_pm_idle)(void) = arch_idle;
 
 static void default_idle(void)
 {
-	if (arm_pm_idle)
-		arm_pm_idle();
-	else
-		cpu_do_idle();
-	local_irq_enable();
+	if (!need_resched()) {
+		if (arm_pm_idle)
+			arm_pm_idle();
+		else
+			cpu_do_idle();
+	}
+		local_irq_enable();
 }
 
 void (*pm_idle)(void) = default_idle;
