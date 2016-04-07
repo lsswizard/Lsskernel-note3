@@ -103,7 +103,7 @@ BUILD_KERNEL()
 	echo "Creating kernel config..."
 	cd $RDIR
 	mkdir -p build
-	make -C $RDIR O=build ik_defconfig \
+	make -C $RDIR O=build lss_defconfig \
 		VARIANT_DEFCONFIG=variant_hlte_$VARIANT \
 		SELINUX_DEFCONFIG=selinux_$SELINUX
 	echo "Starting build..."
