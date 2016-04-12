@@ -61,7 +61,7 @@ MAKE_ZIP=1
 MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
-TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-4.9-arm
+TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-cortex-linux-gnueabi-linaro_5.2
 
 # amount of cpu threads to use in kernel make process
 THREADS=5
