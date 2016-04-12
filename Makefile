@@ -328,22 +328,22 @@ include $(srctree)/scripts/Kbuild.include
 
 # Make variables (CC, etc...)
 
-AS		= $(CROSS_COMPILE)as
-LD		= $(CROSS_COMPILE)ld
-REAL_CC	= $(CCACHE) $(CROSS_COMPILE)gcc
-CPP		= $(CC) -E
-AR		= $(CROSS_COMPILE)ar
-NM		= $(CROSS_COMPILE)nm
-STRIP		= $(CROSS_COMPILE)strip
-OBJCOPY		= $(CROSS_COMPILE)objcopy
-OBJDUMP		= $(CROSS_COMPILE)objdump
-AWK		= awk
-GENKSYMS	= scripts/genksyms/genksyms
-INSTALLKERNEL  := installkernel
-DEPMOD		= /sbin/depmod
-KALLSYMS	= scripts/kallsyms
-PERL		= perl
-CHECK		= sparse
+AS				= $(CROSS_COMPILE)as
+LD				= $(CROSS_COMPILE)ld
+REAL_CC			= $(CCACHE) $(CROSS_COMPILE)gcc
+CPP				= $(CC) -E
+AR				= $(CROSS_COMPILE)ar
+NM				= $(CROSS_COMPILE)nm
+STRIP			= $(CROSS_COMPILE)strip
+OBJCOPY			= $(CROSS_COMPILE)objcopy
+OBJDUMP			= $(CROSS_COMPILE)objdump
+AWK				= awk
+GENKSYMS		= scripts/genksyms/genksyms
+INSTALLKERNEL   := installkernel
+DEPMOD			= /sbin/depmod
+KALLSYMS		= scripts/kallsyms
+PERL			= perl
+CHECK			= sparse
 
 ifeq ($(CONFIG_CRYPTO_FIPS),)
  READELF	= $(CROSS_COMPILE)readelf
@@ -358,10 +358,10 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
-LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
+LDFLAGS_MODULE  = 
+CFLAGS_KERNEL	= 
 AFLAGS_KERNEL	=
-CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
+CFLAGS_GCOV		= -fprofile-arcs -ftest-coverage
 
 
 # Use LINUXINCLUDE when you must reference the include/ directory.
