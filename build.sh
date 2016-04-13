@@ -69,7 +69,7 @@ THREADS=5
 ############## SCARY NO-TOUCHY STUFF ###############
 
 export ARCH=arm
-export CROSS_COMPILE=$TOOLCHAIN/bin/arm-eabi-
+export CROSS_COMPILE=$TOOLCHAIN/bin/arm-cortex_a15-linux-gnueabihf-
 export LOCALVERSION=$KERNEL_VERSION
 
 if ! [ -f $RDIR"/arch/arm/configs/variant_hlte_"$VARIANT ] ; then

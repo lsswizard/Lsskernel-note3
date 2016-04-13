@@ -149,7 +149,8 @@ static void wacom_i2c_enable(struct wacom_i2c *wac_i2c)
 			"%s\n", __func__);
 
 #ifdef BATTERY_SAVING_MODE
-	if (wac_i2c->pen_insert)
+	if (wac_i2c->battery_saving_mode
+		&& wac_i2c->pen_insert)
 		en = false;
 #endif
 
@@ -230,7 +231,8 @@ static void pen_insert_work(struct work_struct *work)
 
 #ifdef BATTERY_SAVING_MODE
 	if (wac_i2c->pen_insert) {
-		wacom_i2c_disable(wac_i2c);
+		if (wac_i2c->battery_saving_mode)
+			wacom_i2c_disable(wac_i2c);
 	} else {
 		wacom_i2c_enable(wac_i2c);
 	}
@@ -930,10 +932,19 @@ static ssize_t epen_saving_mode_store(struct device *dev,
 				size_t count)
 {
 	struct wacom_i2c *wac_i2c = dev_get_drvdata(dev);
+	int val;
 
-	if (wac_i2c->pen_insert) {
+	if (sscanf(buf, "%u", &val) == 1)
+		wac_i2c->battery_saving_mode = !!val;
+
+	dev_info(&wac_i2c->client->dev, "%s: %s\n",
+			__func__, val ? "checked" : "unchecked");
+
+	if (wac_i2c->battery_saving_mode) {
+		if (wac_i2c->pen_insert)
 			wacom_i2c_disable(wac_i2c);
 	} else {
+		if (wac_i2c->enabled)
 			wacom_i2c_enable(wac_i2c);
 	}
 	return count;
