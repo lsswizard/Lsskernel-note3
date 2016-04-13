@@ -374,19 +374,19 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
-		   -Werror-implicit-function-declaration \
-		   -Wno-format-security \
-                   -mtune=cortex-a15 \
-                   --param l1-cache-size=32 \
-                   --param l2-cache-size=2048 \
-                   --param l1-cache-line-size=64 \
-                   -fmodulo-sched -fmodulo-sched-allow-regmoves -fno-tree-vectorize -ffast-math \
-                   -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
-		   -Wno-sizeof-pointer-memaccess \
-		   -fno-delete-null-pointer-checks \
-		   -std=gnu89
+KBUILD_CFLAGS   := 	-Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+					-fno-strict-aliasing -fno-common \
+					-Werror-implicit-function-declaration \
+					-Wno-format-security \
+					-mtune=cortex-a15 -mfpu=neon-vfpv4 \
+					--param l1-cache-size=32 \
+					--param l2-cache-size=2048 \
+					--param l1-cache-line-size=64 \
+					-fmodulo-sched -fmodulo-sched-allow-regmoves -fno-tree-vectorize -ffast-math \
+					-funswitch-loops -fpredictive-commoning -fgcse-after-reload \
+					-Wno-sizeof-pointer-memaccess \
+					-fno-delete-null-pointer-checks \
+					-std=gnu89
 GRAPHITE 			  = -fgraphite-identity -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-flatten -floop-nest-optimize
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
