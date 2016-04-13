@@ -1,3 +1,4 @@
+EXTRA_CFLAGS += -Wno-bool-compare -Wno-logical-not-parentheses
 mdss-mdp3-objs = mdp3.o mdp3_dma.o mdp3_ctrl.o dsi_status_v2.o
 ifeq ($(TARGET_BUILD_VARIANT),user)
 EXTRA_CFLAGS += -DDLOG_USER_VARIANT

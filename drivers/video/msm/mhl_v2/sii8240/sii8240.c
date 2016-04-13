@@ -444,7 +444,7 @@ static int tmds_control(struct sii8240_data *sii8240, bool tmds_on)
 		return ret;
 	}
 
-	switch (tmds_on) {
+	switch ((int)tmds_on) {
 	case true:
 #ifdef SFEATURE_HDCP_SUPPORT
 		ret = mhl_read_byte_reg(tpi, 0x1A, &value);
