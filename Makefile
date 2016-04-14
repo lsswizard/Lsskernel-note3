@@ -352,16 +352,16 @@ endif
 
 # Use the wrapper for the compiler.  This wrapper scans for new
 # warnings and causes the build to stop upon encountering them.
-CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
+CC				= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
-		  -Wbitwise -Wno-return-void $(CF)
+				-Wbitwise -Wno-return-void $(CF)
 MODFLAGS		= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a15 -marm -mfpu=neon -mfpu=neon -ftree-vectorize -mvectorize-with-neon-quad		  
 CFLAGS_MODULE   =$(MODFLAGS)
 AFLAGS_MODULE   =$(MODFLAGS)
 LDFLAGS_MODULE  = 
-CFLAGS_KERNEL	= -mtune=cortex-a15 -marm -mfpu=neon -ftree-vectorize -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad
-AFLAGS_KERNEL	= -mtune=cortex-a15 -marm -mfpu=neon -ftree-vectorize -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad
+CFLAGS_KERNEL	= -mcpu=cortex-a15 -marm -mfpu=neon -ftree-vectorize -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad
+AFLAGS_KERNEL	= -mcpu=cortex-a15 -marm -mfpu=neon -ftree-vectorize -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mvectorize-with-neon-quad
 CFLAGS_GCOV		= -fprofile-arcs -ftest-coverage
 
 
