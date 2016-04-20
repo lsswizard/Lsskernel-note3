@@ -91,4 +91,4 @@ GTAGS
 /build/
 /*.zip
 /*.tar.md5
-/lssramdisk/lss.zip/*.img
+/lssramdisk/lss.zip/
