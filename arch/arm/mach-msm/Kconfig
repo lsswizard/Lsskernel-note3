@@ -38,6 +38,7 @@ config ARCH_MSM8974
 	select ARCH_WANT_KMAP_ATOMIC_FLUSH
 	select KRAIT_REGULATOR
 	select ENABLE_VMALLOC_SAVINGS
+	select HAS_MACH_MEMUTILS
 endmenu
 
 config MSM_KRAIT_TBB_ABORT_HANDLER
@@ -2012,3 +2013,9 @@ config SEC_SMART_MGR_RUNQUEUE_AVG
 	help
 	  Support for Smart MGR function.
 endif
+
+config HAS_MACH_MEMUTILS
+	default y
+	bool "Motorola MSM memcpy enhancements"
+	help
+	Faster memcpy performance for Krait
