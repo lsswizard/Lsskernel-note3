@@ -61,7 +61,7 @@ MAKE_ZIP=1
 MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
-TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-5.3-a15
+TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-6.0u
 
 # amount of cpu threads to use in kernel make process
 THREADS=5
@@ -69,7 +69,7 @@ THREADS=5
 ############## SCARY NO-TOUCHY STUFF ###############
 
 export ARCH=arm
-export CROSS_COMPILE=$TOOLCHAIN/bin/arm-cortex_a15-linux-gnueabihf-
+export CROSS_COMPILE=$TOOLCHAIN/bin/arm-eabi-
 export LOCALVERSION=$KERNEL_VERSION
 
 if ! [ -f $RDIR"/arch/arm/configs/variant_hlte_"$VARIANT ] ; then

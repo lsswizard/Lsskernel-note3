@@ -245,8 +245,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = $(CCACHE) gcc
 HOSTCXX      = $(CCACHE) g++
-HOSTCFLAGS   = -Wno-array-bounds -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -Wno-array-bounds -fomit-frame-pointer -std=gnu89
-HOSTCXXFLAGS = -Wno-array-bounds -O2
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -pipe
+HOSTCXXFLAGS = -O2 -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -pipe
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -380,11 +380,22 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
+			-fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
+		   -Wno-shift-overflow \
+		   -Wno-tautological-compare \
+		   -Wno-unused-const-variable \
+		   -Wno-bool-compare \
+		   -Wno-logical-not-parentheses \
+		   -Wno-parentheses \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
-		   -std=gnu89 -fno-pic
+		   -std=gnu89 -fno-pic \
+		   -fmodulo-sched -fmodulo-sched-allow-regmoves -fno-tree-vectorize -ffast-math \
+           -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
+ 		   -fno-aggressive-loop-optimizations \
+ 		   -fno-delete-null-pointer-checks
+ 
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
