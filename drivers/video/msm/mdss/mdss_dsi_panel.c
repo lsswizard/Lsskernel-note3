@@ -36,22 +36,12 @@
 #endif /* CONFIG_FB_MSM_MDSS_MDP3 */
 #include "mdss_dsi.h"
 
-#ifdef CONFIG_MFD_TPS65132
-#include <linux/mfd/tps65132.h>
-#endif
-#ifdef CONFIG_LGE_SUPPORT_LCD_MAKER_ID
-#include <mach/board_lge.h>
-#include <linux/qpnp/qpnp-adc.h>
-#include <linux/err.h>
-#endif
-
 #ifdef CONFIG_POWERSUSPEND
 #include <linux/powersuspend.h>
 #endif
 
 #define DT_CMD_HDR 6
->>>>>>> 1ef210c... powersuspend: add missing mdss_dsi_panel.c hooks
-
+ 
 #if defined(CONFIG_FB_MSM_MDSS_MDP3)
 static struct mdss_dsi_driver_data msd;
 #if defined(CONFIG_MDNIE_LITE_TUNING)
@@ -484,16 +474,15 @@ static int mdss_dsi_panel_registered(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
-<<<<<<< HEAD
+
 #if defined(CONFIG_FB_MSM_MDSS_MDP3)
 	ctrl_pdata = container_of(pdata, struct mdss_dsi_ctrl_pdata,
-=======
+
 #ifdef CONFIG_POWERSUSPEND
 	set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE);
 #endif
 
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
->>>>>>> 1ef210c... powersuspend: add missing mdss_dsi_panel.c hooks
 				panel_data);
 
 	msd.mfd = (struct msm_fb_data_type *)registered_fb[0]->par;
