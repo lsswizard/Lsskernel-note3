@@ -187,7 +187,7 @@ on init
     chown system log /sys/fs/pstore/console-ramoops
     chmod 0440 /sys/fs/pstore/console-ramoops
 
-    # To sync between sdcard & installd
+# To sync between sdcard & installd
     setprop installd.sdcard_manipulate_done 0
 
 # Healthd can trigger a full boot from charger mode by signaling this
@@ -461,7 +461,7 @@ on post-fs-data
     chown system radio /sys/class/sec/sec_ir/ir_send_result
     chown system system /dev/ice4_dev
     chmod 0660 /dev/ice4_dev
-
+    
     # Downloadable Filter
     mkdir /data/DownFilters 0775 system system
     mkdir /data/DownFilters/Lib 0775 system system

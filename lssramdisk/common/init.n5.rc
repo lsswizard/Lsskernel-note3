@@ -5,10 +5,7 @@ on init
     symlink /dev/block/platform/msm_sdcc.1/by-name/persist /dev/block/persistent
 
 on post-fs
-    # Private Mode
-    mkdir /mnt/shell/privatemode 0700 system system
-    mkdir /storage/Private 0000 system system
-
+    
     mkdir /data/misc/vpnclientd 0770 system system
 
     mkdir /data/misc/wifi_sns_patch 0770 wifi system
@@ -41,11 +38,6 @@ on post-fs-data
     mkdir /efs/Battery 0775 radio system
     chown radio system /efs/Battery
     chmod 0775 /efs/Battery
-
-    # Private Mode
-    mkdir /data/privatemode 0770 system system
-    chown system system /data/privatemode
-    restorecon /data/privatemode
 
     # Mobicore
     mkdir /efs/TEE 0770 radio system
