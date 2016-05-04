@@ -31,10 +31,10 @@ OUT_DIR_PERMISSIVE="/home/jc/idlekernel.com/note5port/v"$VER"_"$(date +'%Y_%m_%d
 MAKE_ZIP=1
 
 # should we make an Odin flashable tar.md5? (1 = yes, 0 = no)
-MAKE_TAR=1
+MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
-TOOLCHAIN=/home/jc/build/toolchain/arm-cortex_a15-linux-gnueabihf-linaro_4.9.4-2015.06
+TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-6.0u
 
 # amount of cpu threads to use in kernel make process
 THREADS=5
@@ -73,7 +73,7 @@ BUILD_KERNEL()
 	echo "Creating kernel config..."
 	cd $RDIR
 	mkdir -p build
-	make -C $RDIR O=build lss_deconfig \
+	make -C $RDIR O=build lss_defconfig \
 		VARIANT_DEFCONFIG=variant_hlte_$VARIANT \
 		SELINUX_DEFCONFIG=selinux_$SELINUX
 	echo "Starting build..."
@@ -136,9 +136,9 @@ DO_BUILD()
 #mkdir -p $OUT_DIR_ENFORCING
 mkdir -p $OUT_DIR_PERMISSIVE
 
-for V in $RDIR/ik.ramdisk/variant/*
+for V in $RDIR/lssramdisk/variant/*
 do
-	VARIANT=${V#$RDIR/ik.ramdisk/variant/}
+	VARIANT=${V#$RDIR/lssramdisk/variant/}
 	if ! [ -f $RDIR"/arch/arm/configs/variant_hlte_"$VARIANT ] ; then
 		echo "Device variant/carrier $VARIANT not found in arm configs!"
 		continue
