@@ -5,5 +5,6 @@ service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-sys
     onrestart write /sys/power/state on
     onrestart restart media
     onrestart restart netd
+    writepid /dev/cpuset/foreground/tasks
     onrestart restart bootchecker
     onrestart restart loc_launcher

@@ -1,5 +1,5 @@
 # su daemon
-service su_daemon /system/xbin/su --daemon
+service su_daemon /system/xbin/daemonsu --auto-daemon
     seclabel u:r:sudaemon:s0
 
 on property:persist.sys.root_access=0

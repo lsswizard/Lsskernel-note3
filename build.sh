@@ -1,6 +1,6 @@
 #!/bin/bash
 # idleKernel for Samsung Galaxy Note 3 build script by jcadduono
-# This build script is for Note 5 Touchwiz ports only
+# This build script is for Marshmallow Touchwiz ports only
 
 ################### BEFORE STARTING ################
 #
@@ -34,6 +34,9 @@ RDIR=$(pwd)
 # japanese variants:
 #	dcm = N900D / SC-01F  (NTT Docomo)
 #	kdi = N900J / SCL22   (au by KDDI)
+
+# ONLY EUR WORKS FOR NOW
+
 VARIANT=eur
 
 [ -z $VER ] && \
@@ -42,7 +45,7 @@ VER=$(cat $RDIR/VERSION)
 
 # kernel version string appended to 3.4.x-idleKernel-hlte-
 # (shown in Settings -> About device)
-KERNEL_VERSION=$VARIANT-$VER-note5port
+KERNEL_VERSION=$VARIANT-$VER-mmport
 
 [ -z $PERMISSIVE ] && \
 # should we boot with SELinux mode set to permissive? (1 = permissive, 0 = enforcing)
@@ -52,7 +55,7 @@ PERMISSIVE=1
 OUT_DIR=$RDIR
 
 # output filename of flashable kernel
-OUT_NAME=lsskernel-hlte-$KERNEL_VERSION
+OUT_NAME=lsskerneltw-hlte-$KERNEL_VERSION
 
 # should we make a TWRP flashable zip? (1 = yes, 0 = no)
 MAKE_ZIP=1
@@ -61,10 +64,11 @@ MAKE_ZIP=1
 MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
+
 TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-6.0u
 
 # amount of cpu threads to use in kernel make process
-THREADS=5
+THREADS=8
 
 ############## SCARY NO-TOUCHY STUFF ###############
 

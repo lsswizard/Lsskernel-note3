@@ -38,6 +38,9 @@ on init
     # session is not exercised through RemoteDisplay in the android framework
     setprop persist.sys.wfd.virtual 0
 
+#on post-fs
+#    export LD_PRELOAD libNimsWrap.so
+
 on fs
     mount_all fstab.qcom
 
@@ -45,7 +48,7 @@ on fs
     # these partition flashed on the device. Failure to mount any partition in fstab file
     # results in failure to launch late-start class.
 
-    wait /dev/block/platform/msm_sdcc.1/by-name/cache
+     wait /dev/block/platform/msm_sdcc.1/by-name/cache
     mount f2fs /dev/block/platform/msm_sdcc.1/by-name/cache /cache nosuid nodev noatime nodiratime discard,inline_xattr
     mount ext4 /dev/block/platform/msm_sdcc.1/by-name/cache /cache nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
 
@@ -53,6 +56,8 @@ on fs
     check_fs /dev/block/platform/msm_sdcc.1/by-name/persist ext4
     mount ext4 /dev/block/platform/msm_sdcc.1/by-name/persist /persist nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
     mkdir /persist/data 0700 system system
+    mkdir /persist/data/sfs 0700 system system
+    mkdir /persist/data/tz 0700 system system
 
     wait /dev/block/platform/msm_sdcc.1/by-name/efs
     check_fs /dev/block/platform/msm_sdcc.1/by-name/efs ext4
@@ -83,6 +88,7 @@ on post-fs-data
     mkdir /tombstones/lpass 0771 system system
     mkdir /tombstones/wcnss 0771 system system
     mkdir /tombstones/dsps 0771 system system
+    mkdir /data/usf 0700 system system
 
 # Mobicore
     export MC_AUTH_TOKEN_PATH /efs
@@ -135,11 +141,6 @@ service qgesturesvr /system/bin/mm-gesture-daemon
     user system
     group system camera input graphics net_bt_stack
 
-service qrngd /system/bin/qrngd -f
-    class main
-    user root
-    group root
-
 service qrngp /system/bin/qrngp
     class main
     user root
@@ -149,6 +150,9 @@ service qrngp /system/bin/qrngp
 
 on property:sys.boot_completed=1
     start qrngp
+
+on property:sys.boot_completed=1
+   write /proc/iccc_ready 1
 
 service qseecomd /system/bin/qseecomd
    class core
@@ -165,10 +169,22 @@ service qosmgrd /system/bin/qosmgr /system/etc/qosmgr_rules.xml
    group system
    disabled
 
-service thermal-engine /system/bin/thermal-engine
+service thermal-engine /system/vendor/bin/thermal-engine
    class main
    user root
+   socket thermal-send-client stream 0666 system system
+   socket thermal-recv-client stream 0660 system system
+   socket thermal-recv-passive-client stream 0666 system system
    group root
+
+# Disable Qualcomm Enterprize Security
+# service security-check1 /sbin/security_boot_check system
+#    class core
+#    oneshot
+
+# service security-check2 /sbin/security_boot_check recovery
+#    class core
+#    oneshot
 
 service time_daemon /system/bin/time_daemon
    class late_start
@@ -191,6 +207,7 @@ service usf_tester /system/bin/usf_tester
     disabled
 
 service usf_epos /system/bin/usf_epos
+    class main
     user system
     group system inet
     disabled
@@ -220,6 +237,16 @@ service usf_proximity /system/bin/usf_proximity
     group system inet
     disabled
 
+service usf_pairing /system/bin/usf_pairing
+    user system
+    group system inet
+    disabled
+
+service usf_sw_calib /system/bin/usf_sw_calib
+    user system
+    group system inet
+    disabled
+
 service usf-post-boot /system/bin/sh /system/etc/usf_post_boot.sh
     class late_start
     user root
@@ -229,7 +256,7 @@ service usf-post-boot /system/bin/sh /system/etc/usf_post_boot.sh
 on property:init.svc.bootanim=stopped
     start usf-post-boot
 
-service mcStarter /system/bin/mcStarter tbase300
+service tbaseLoader /system/bin/tbaseLoader tbase300
     class core
     user root
     group root
@@ -243,7 +270,7 @@ service run-mobicore /system/bin/mcDriverDaemon
     disabled
 
 on property:sys.qseecomd.enable=true
-    start mcStarter
+    start tbaseLoader
 
 on property:sys.mobicore.loaded=true
     start run-mobicore
@@ -274,7 +301,7 @@ service ims_rtp_daemon /system/bin/ims_rtp_daemon
    class main
    user system
    socket ims_rtpd stream 0660 system radio
-   group radio net_raw diag qcom_diag log
+   group radio net_raw diag qcom_diag log inet
    disabled
 
 on property:sys.ims.DATA_DAEMON_STATUS=1
@@ -285,6 +312,13 @@ service imscmservice /system/bin/imscmservice
    user system
    group radio net_raw diag qcom_diag log
 
+# Disable Qualcomm Enterprize Security
+# service nqs /system/bin/nqs
+#    class late_start
+#    socket nqs_qsb_comm stream 660 system system
+#    user system
+#    group drmrpc
+
 service pfm /system/bin/pfm
     class late_start
     user system
@@ -294,8 +328,32 @@ service ml_daemon /system/bin/ml_daemon
     class core
     user root
     group root
-
+# SecEDS
 service TvoutService_C /system/bin/bintvoutservice
      class main
      user system
      group graphics
+on property:ro.SecEDS.enable=false
+    stop TvoutService_C
+
+# Secure Storage startup
+service secure_storage /system/bin/secure_storage_daemon
+    class core
+    user system
+    group system
+    disabled
+
+on property:ro.securestorage.support=true
+    mkdir /dev/.secure_storage
+    chmod 0711 /dev/.secure_storage
+    chown system system /dev/.secure_storage
+    restorecon -R /dev/.secure_storage
+    start secure_storage
+
+on property:ro.securestorage.knox=true
+    mkdir /dev/.secure_storage
+    chmod 0711 /dev/.secure_storage
+    chown system system /dev/.secure_storage
+    restorecon -R /dev/.secure_storage
+    start secure_storage
+

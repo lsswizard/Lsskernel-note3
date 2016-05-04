@@ -32,6 +32,8 @@ on early-init
     mount debugfs debugfs /sys/kernel/debug
 
 on init
+     export LD_SHIM_LIBS /system/lib/libril.so|libril_shim.so
+     export LD_PRELOAD "/system/lib/libsamsung_symbols.so"
     # Support Preload install apks
     mkdir /preload 0771 system system
 
@@ -46,21 +48,14 @@ on init
     
     # Set permissions for persist partition
     mkdir /persist 0771 system system
-    # See storage config details at http://source.android.com/tech/storage/
-    mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /storage/emulated 0555 root root
 
-    export EXTERNAL_STORAGE /storage/emulated/legacy
-    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
-    export EMULATED_STORAGE_TARGET /storage/emulated
+    export EXTERNAL_STORAGE /sdcard
     export SECONDARY_STORAGE /storage/extSdCard
     mkdir /storage/extSdCard 0555 root root
 
     # Support legacy paths
-    symlink /storage/emulated/legacy /sdcard
-    symlink /storage/emulated/legacy /mnt/sdcard
-    symlink /storage/emulated/legacy /storage/sdcard0
-    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard0
 		
     # map "real" external storages paths also in same way. backwards compatibility.
     symlink /storage/extSdCard /mnt/extSdCard
@@ -89,6 +84,7 @@ on early-boot
     # Allow subsystem (modem etc) debugging
     write /sys/module/subsystem_restart/parameters/enable_debug ${persist.sys.ssr.enable_debug}
     write /sys/kernel/boot_adsp/boot 1
+    exec u:r:qti_init_shell:s0 -- /init.qcom.early_boot.sh
 
 on boot
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
@@ -99,8 +95,10 @@ on boot
     chown bluetooth bluetooth /sys/module/hci_uart/parameters/ath_btwrite
     chown system system /sys/module/sco/parameters/disable_esco
     chown bluetooth bluetooth /sys/module/hci_smd/parameters/hcismd_set
+    chown system system /sys/module/radio_iris_transport/parameters/fmsmd_set
     chmod 0660 /sys/module/bluetooth_power/parameters/power
     chmod 0660 /sys/module/hci_smd/parameters/hcismd_set
+    chmod 0660 /sys/module/radio_iris_transport/parameters/fmsmd_set
     chmod 0660 /sys/class/rfkill/rfkill0/state
     chmod 0660 /proc/bluetooth/sleep/proto
     chown bluetooth net_bt_stack /dev/ttyHS0
@@ -138,8 +136,14 @@ on boot
     chmod 2755 /data/misc/perfd
     mkdir /data/system/perfd 0770 root system
     chmod 2770 /data/system/perfd
+    mkdir /persist/drm 0770 system system
 
     setprop wifi.interface wlan0
+
+#   Define TCP buffer sizes for various networks
+#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
+    setprop net.tcp.buffersize.wifi     524288,1048576,4525824,524288,1048576,4525824
+
 
     setprop ro.telephony.call_ring.multiple false
 
@@ -153,38 +157,22 @@ on boot
 
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
-    #For bridgemgr daemon to inform the USB driver of the correct transport
-    chown radio radio /sys/class/android_usb/f_rmnet_smd_sdio/transport
-
     # For setting tcp delayed ack
     chown system system /sys/kernel/ipv4/tcp_delack_seg
     chown system system /sys/kernel/ipv4/tcp_use_userconfig
 
-    # Define TCP buffer sizes for various networks
-    # ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
-    setprop net.tcp.buffersize.default  4096,87380,110208,4096,16384,110208
-    setprop net.tcp.buffersize.wifi     524288,1048576,4525824,524288,1048576,4525824
-    setprop net.tcp.buffersize.ethernet 524288,1048576,3145728,524288,1048576,2097152
-    setprop net.tcp.buffersize.lte      524288,1048576,2560000,524288,1048576,2560000
-    setprop net.tcp.buffersize.umts     58254,349525,1048576,58254,349525,1048576
-    setprop net.tcp.buffersize.hspa     40778,244668,734003,16777,100663,301990
-    setprop net.tcp.buffersize.hsupa    40778,244668,734003,16777,100663,301990
-    setprop net.tcp.buffersize.hsdpa    61167,367002,1101005,8738,52429,262114
-    setprop net.tcp.buffersize.hspap    122334,734003,2202010,32040,192239,576717
-    setprop net.tcp.buffersize.edge     4093,26280,70800,4096,16384,70800
-    setprop net.tcp.buffersize.gprs     4092,8760,48000,4096,8760,48000
-    setprop net.tcp.buffersize.evdo     4094,87380,262144,4096,16384,262144
 
-    # Define TCP delayed ack settings for WiFi & LTE
+# Define TCP delayed ack settings for WiFi & LTE
     setprop net.tcp.delack.default     1
     setprop net.tcp.delack.wifi        20
     setprop net.tcp.delack.lte         8
     setprop net.tcp.usercfg.default    0
     setprop net.tcp.usercfg.wifi       1
     setprop net.tcp.usercfg.lte        1
+    setprop persist.tcp.delack.enable  true
 
-    # Assign TCP buffer thresholds to be ceiling value of technology maximums
-    # Increased technology maximums should be reflected here.
+#   Assign TCP buffer thresholds to be ceiling value of technology maximums
+#   Increased technology maximums should be reflected here.
     write /proc/sys/net/core/rmem_max  2097152
     write /proc/sys/net/core/wmem_max  2097152
 
@@ -228,39 +216,53 @@ on boot
 
 # msm specific files that need to be created on /data
 on post-fs-data
+    # Create directory for TZ Apps
+    mkdir /data/misc/qsee 0770 system system
+
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
     mkdir /data/misc/camera 0770 camera camera
-
-    mkdir /data/media 0770 media_rw media_rw
-    chown media_rw media_rw /data/media
 
     mkdir /data/misc/bluetooth 0770 bluetooth bluetooth
 
     # Create the directories used by the Wireless subsystem
     mkdir /data/misc/wifi 0770 wifi system
+	chmod 0660 /data/misc/wifi/wpa_supplicant.conf
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/wifi/wpa_supplicant 0770 wifi wifi
     mkdir /data/misc/dhcp 0775 dhcp dhcp
     chown dhcp dhcp /data/misc/dhcp
 
+    #Create FM dir for patchdownloader
+    mkdir /data/misc/fm 0770 system system
+    chmod 0770 /data/misc/fm
+
 	# for WIFI TRP/TIS
     chown system root /data/.psm.info
     chmod 0664 /data/.psm.info
 
-    # for WIFI Antena Selection
+    # for WIFI TRP/TIS
+    chown system root /data/.psm.info
+    chmod 0664 /data/.psm.info
+
+    # for WIFI Antenna Selection
     chown system root /data/.ant.info
     chmod 0664 /data/.ant.info
-
-    # for WIFI MAC address
-    mkdir /efs/wifi 0775 radio system
-    chown system wifi /efs/wifi/.mac.info
-    chmod 0660 /efs/wifi/.mac.info
-    chmod 0660 /efs/wifi/.mac.cob
 
     # for WIFI Version
     write /data/.wifiver.info 0
     chown system root /data/.wifiver.info
     chmod 0666 /data/.wifiver.info
+
+    # for WIFI Cert
+    chmod 0664 /data/.bustxglom.info
+    chmod 0664 /data/.roamoff.info
+    chmod 0664 /data/.frameburst.info
+    chmod 0664 /data/.txbf.info
+
+    # for WIFI MAC address
+    mkdir /efs/wifi 0775 radio system
+    chown system wifi /efs/wifi/.mac.info
+    chmod 0660 /efs/wifi/.mac.info
 
     # Create the directories used by CnE subsystem
     mkdir /data/connectivity 0771 system system
@@ -278,6 +280,9 @@ on post-fs-data
 
     # Create directory used by the DASH client
     mkdir /data/misc/dash 0770 media audio
+
+    # Create directory used by display clients
+    mkdir /data/misc/display 0770 root system
 
     # Mounting of persist is moved to 'on emmc-fs' and 'on fs' sections
     # We chown/chmod /persist again so because mount is run as root + defaults
@@ -339,6 +344,14 @@ service usbhub_init /system/bin/usbhub_init
    disabled
    oneshot
 
+    # RIDL data
+    mkdir /data/misc/SelfHost/ 0710 system shell
+    mkdir /data/misc/SelfHost/QCLogs/ 2750 system shell
+    mkdir /data/misc/SelfHost/QCLogs/temp/ 0700 system shell
+    mkdir /data/misc/SelfHost/storage/ 0700 system shell
+    mkdir /data/misc/SelfHost/Running/ 2750 system shell
+    mkdir /data/misc/SelfHost/socket/ 2770 system system
+
 #service qcomsysd /system/bin/qcom-system-daemon
 #    class main
 
@@ -346,10 +359,19 @@ service ssr_setup /system/bin/ssr_setup
     oneshot
     disabled
 
+on property:wifi.change_nv_owner=1
+    chown wifi wifi /persist/WCNSS_qcom_wlan_nv.bin
+
 on property:persist.sys.ssr.restart_level=*
     start ssr_setup
 
+on property:sys.boot_completed=1
+    write /dev/kmsg "Boot completed "
+
 on property:persist.radio.atfwd.start=false
+    stop atfwd
+
+on property:radio.atfwd.start=false
     stop atfwd
 
 # corefile limit and ETB enabling
@@ -403,6 +425,11 @@ on property:bluetooth.startbtsnoop=true
 on property:bluetooth.startbtsnoop=false
     stop btsnoop
 
+service qcom-c_core-sh /system/bin/sh /init.qcom.class_core.sh
+    class core
+    user root
+    oneshot
+
 service qcom-c_main-sh /system/bin/sh /init.class_main.sh
     class main
     user root
@@ -422,6 +449,11 @@ service cnd /system/bin/cnd
 service dpmd /system/bin/dpmd
     class late_start
     socket dpmd stream 660 root system
+
+service irsc_util /system/bin/irsc_util "/etc/sec_config"
+    class main
+    user root
+    oneshot
 
 service rmt_storage /system/bin/rmt_storage
     class core
@@ -490,30 +522,19 @@ service bt-sap /system/bin/sapd 15
     disabled
     oneshot
 
+service btsnoop /system/bin/btsnoop
+   user bluetooth
+   group bluetooth net_bt_admin sdcard_rw sdcard_r
+   class late_start
+   disabled
+   oneshot
+
 service ftmd /system/bin/logwrapper /system/bin/ftmdaemon
     class late_start
     user root
     group bluetooth net_bt_admin misc net_bt_stack qcom_diag
     disabled
     oneshot
-
-service bridgemgrd /system/bin/bridgemgrd
-    class late_start
-    user radio
-    group radio qcom_diag
-    disabled
-
-service port-bridge /system/bin/port-bridge /dev/smd0 /dev/ttyGS0
-    class late_start
-    user system
-    group system inet
-    disabled
-
-service qmiproxy /system/bin/qmiproxy
-    class main
-    user radio
-    group radio qcom_diag
-    disabled
 
 # QMUX must be in multiple groups to support external process connections
 service qmuxd /system/bin/qmuxd
@@ -566,13 +587,7 @@ service amp_unload /system/bin/amploader -u
     disabled
     oneshot
 
-service p2p_supplicant /system/bin/wpa_supplicant \
-    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
-    -I/system/etc/wifi/wpa_supplicant_overlay.conf -O/data/misc/wifi/sockets -N \
-    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
-    -I/system/etc/wifi/p2p_supplicant_overlay.conf \
-    -puse_p2p_group_interface=1 -puse_multi_chan_concurrent=1 \
-    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
+service p2p_supplicant /system/bin/wpa_supplicant -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -I/system/etc/wifi/wpa_supplicant_overlay.conf -O/data/misc/wifi/sockets -N -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -I/system/etc/wifi/p2p_supplicant_overlay.conf -puse_p2p_group_interface=1 -puse_multi_chan_concurrent=1 -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
     #   we will start as root and wpa_supplicant will switch to user wifi
     #   after setting up the capabilities required for WEXT
     #   user wifi
@@ -582,11 +597,7 @@ service p2p_supplicant /system/bin/wpa_supplicant \
     disabled
     oneshot
 
-service wpa_supplicant /system/bin/wpa_supplicant \
-    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
-    -I/system/etc/wifi/wpa_supplicant_overlay.conf \
-    -O/data/misc/wifi/sockets \
-    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
+service wpa_supplicant /system/bin/wpa_supplicant -g@android:wpa_wlan0 -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin
     #   we will start as root and wpa_supplicant will switch to user wifi
     #   after setting up the capabilities required for WEXT
     #   user wifi
@@ -626,15 +637,20 @@ service iprenew_p2p /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service ptt_socket_app /system/bin/ptt_socket_app -d
-    class main
-    user root
-    group root
-    oneshot
+#service ptt_socket_app /system/bin/ptt_socket_app -d
+#    class main
+#    user root
+#    group root
+#    oneshot
 
-service ptt_ffbm /system/bin/ptt_socket_app -f -d
-    user root
-    group root
+#service ptt_ffbm /system/bin/ptt_socket_app -f -d
+#    user root
+#    group root
+#    disabled
+#    oneshot
+
+service dhcpcd_bt-pan /system/bin/dhcpcd -BKLG
+    class late_start
     disabled
     oneshot
 
@@ -663,29 +679,29 @@ service dhcpcd_bnep4 /system/bin/dhcpcd -BKLG
     disabled
     oneshot
 
-#for WiFi MFG(TestMode)
- service mfgloader /system/bin/mfgloader
-     class main
-     disabled
-     oneshot
+# start for WiFi MFG (TestMode)
+service mfgloader /system/bin/mfgloader
+    class main
+    disabled
+    oneshot
 
- service wlandutservice /system/bin/wlandutservice
-     class main
-     user system
-     group wifi net_raw net_admin system inet
-     disabled
-     oneshot
+service wlandutservice /system/bin/wlandutservice
+    class main
+    user system
+    group wifi net_raw net_admin system inet
+    disabled
+    oneshot
 
- service macloader /system/bin/macloader
-     class main
-     oneshot
+service macloader /system/bin/macloader
+    class main
+    oneshot
 
- on property:init.svc.macloader=stopped
-     chown system root /data/.cid.info
-     chmod 0664 /data/.cid.info
-     chown system root /data/.rev
-     chmod 0664 /data/.rev
-# end of wifi
+on property:init.svc.macloader=stopped
+    chown system root /data/.cid.info
+    chmod 0664 /data/.cid.info
+    chown system root /data/.rev
+    chmod 0664 /data/.rev
+# end of WiFi MFG (TestMode)
 
 service sec-sh /system/bin/sh /system/etc/init.sec.boot.sh
     class main
@@ -699,8 +715,8 @@ service loc_launcher /system/bin/loc_launcher
 
 service fm_dl /system/bin/sh /system/etc/init.qcom.fm.sh
     class late_start
-    user root
-    group system fm_radio
+    user system
+    group system
     disabled
     oneshot
 
@@ -731,6 +747,13 @@ service qcom-post-boot /system/bin/sh /system/etc/init.qcom.post_boot.sh
     disabled
     oneshot
 
+service qti-testscripts /system/bin/sh /system/etc/init.qcom.testscripts.sh
+    class late_start
+    user root
+    disabled
+    oneshot
+    seclabel u:r:qti-testscripts:s0
+
 service wifi-sdio-on /system/bin/sh /system/etc/init.qcom.sdio.sh
     class late_start
     group wifi inet
@@ -746,6 +769,7 @@ service wifi-crda /system/bin/sh /system/etc/init.crda.sh
 
 on property:sys.boot_completed=1
     start qcom-post-boot
+    start qti-testscripts
 
 service atfwd /system/bin/ATFWD-daemon
     class late_start
@@ -758,15 +782,6 @@ service hostapd /system/bin/hostapd -dd /data/hostapd/hostapd.conf
     group root
     oneshot
     disabled
-
-service ds_fmc_appd /system/bin/ds_fmc_appd -p "rmnet0" -D
-    class late_start
-    group radio wifi inet
-    disabled
-    oneshot
-
-on property:persist.data.ds_fmc_app.mode=1
-    start ds_fmc_appd
 
 service ims_regmanager /system/bin/exe-ims-regmanagerprocessnative
     class late_start
@@ -791,7 +806,7 @@ service battery_monitor /system/bin/battery_monitor
 #    socket rild-debug2 stream 660 radio system
 #    user root
 #    disabled
-#    group radio cache inet misc audio sdcard_r sdcard_rw diag qcom_diag log
+#    group radio cache inet misc audio sdcard_r sdcard_rw diag diag log
 
 #service ril-daemon3 /system/bin/rild -c 3
 #    class main
@@ -824,11 +839,6 @@ service profiler_daemon /system/bin/profiler_daemon
     user root
     group root
     disabled
-
-# virtual sdcard daemon running as media_rw (1023)
-service sdcard /system/bin/sdcard -u 1023 -g 1023 -l -r /data/media /mnt/shell/emulated
-    class late_start
-    oneshot
     
 
 service fuse_extSdCard /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d -f /mnt/media_rw/extSdCard /storage/extSdCard
@@ -866,10 +876,9 @@ service fuse_UsbDriveF /system/bin/sdcard -u 1023 -g 1023 -d -f /mnt/media_rw/Us
     disabled
     oneshot
 
-# Binding fuse mount point to /storage/emulated/legacy
-#on property:init.svc.sdcard=running
-#    wait /mnt/shell/emulated/0
-#    mount none /mnt/shell/emulated/0 /storage/emulated/legacy bind
+on property:ro.fuse_sdcard=true
+    start sdcard
+
 
 service hcidump /system/bin/sh /system/etc/hcidump.sh
     user bluetooth
@@ -928,14 +937,14 @@ on property:sys.qbcharger.enable=false
 
 service diag_mdlog_start /system/bin/diag_mdlog
     class late_start
-    user sdcard_rw
+    user shell
     group system qcom_diag sdcard_rw sdcard_r media_rw
     disabled
     oneshot
 
 service diag_mdlog_stop /system/bin/diag_mdlog -k
     class late_start
-    user sdcard_rw
+    user shell
     group system qcom_diag sdcard_rw sdcard_r media_rw
     disabled
     oneshot
@@ -957,7 +966,7 @@ on property:persist.sys.rootagent=0
     stop rootagent
 
 # umount service
-service umount_service /system/bin/umount /preload
+service umount_service /system/bin/umount -D /preload
     disabled
     oneshot
 
@@ -969,3 +978,10 @@ on property:persist.sys.storage_preload=1
 on property:persist.sys.storage_preload=0
     start umount_service
 
+service RIDL /system/vendor/bin/RIDLClient.exe
+    class late_start
+    oneshot
+    user root
+    group root inet log sdcard_r sdcard_rw qcom_diag radio net_raw
+    # removed for security team - misc bluetooth gps wifi diag media_rw
+    # limited to 12 groups.  Unused: audio usb net_bt_admin net_bt_stac net_admin
