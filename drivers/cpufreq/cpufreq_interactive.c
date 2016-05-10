@@ -753,6 +753,9 @@ static ssize_t store_target_loads(
 	int ntokens;
 	unsigned int *new_target_loads = NULL;
 	unsigned long flags;
+	
+	if (sysfs_streq(current->comm, "mpdecision"))
+		return -EINVAL;
 
 	new_target_loads = get_tokenized_data(buf, &ntokens);
 	if (IS_ERR(new_target_loads))
@@ -796,6 +799,9 @@ static ssize_t store_above_hispeed_delay(
 	int ntokens, i;
 	unsigned int *new_above_hispeed_delay = NULL;
 	unsigned long flags;
+	
+	if (sysfs_streq(current->comm, "mpdecision"))
+		return -EINVAL;
 
 	new_above_hispeed_delay = get_tokenized_data(buf, &ntokens);
 	if (IS_ERR(new_above_hispeed_delay))
@@ -836,6 +842,9 @@ static ssize_t store_hispeed_freq(struct kobject *kobj,
 {
 	int ret;
 	long unsigned int val;
+	
+	if (sysfs_streq(current->comm, "mpdecision"))
+		return -EINVAL;
 
 	ret = kstrtoul(buf, 0, &val);
 	if (ret < 0)
