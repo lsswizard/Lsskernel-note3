@@ -138,8 +138,11 @@ CREATE_ZIP()
 {
 	echo "Compressing to TWRP flashable zip file..."
 	cd $RDIR/lssramdisk/lss.zip
-	zip -r -9 - * > $OUT_DIR/$OUT_NAME.zip
+	7z a -mx9 $OUT_DIR/$OUT_NAMETEMP.zip *
+	zipalign -v 4 $OUT_DIR/$OUT_NAMETEMP.zip $OUT_DIR/$OUT_NAME.zip
+	rm $OUT_DIR/$OUT_NAMETEMP.zip
 	cd $RDIR
+	ls -al $OUT_DIR/$OUT_NAME.zip
 }
 
 CREATE_TAR()
