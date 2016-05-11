@@ -106,7 +106,6 @@ CREATE_ZIP()
 	7z a -mx9 $OUT_DIR/$OUT_NAMETEMP.zip *
 	zipalign -v 4 $OUT_DIR/$OUT_NAMETEMP.zip $OUT_DIR/$OUT_NAME.zip
 	rm $OUT_DIR/$OUT_NAMETEMP.zip
-	ls -al $OUT_DIR/$OUT_NAME.zip
 	unzip -l $OUT_DIR/$OUT_NAME
 	cd $RDIR
 }
