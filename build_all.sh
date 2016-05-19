@@ -24,8 +24,8 @@ RDIR=$(pwd)
 VER=$(cat $RDIR/VERSION)
 
 # output directory of flashable kernel
-OUT_DIR_ENFORCING="/home/jc/idlekernel.com/note5port/selinux_enforcing/v"$VER"_"$(date +'%Y_%m_%d')
-OUT_DIR_PERMISSIVE="/home/jc/idlekernel.com/note5port/v"$VER"_"$(date +'%Y_%m_%d')
+OUT_DIR_ENFORCING="/home/lss/Desktop/phone/note5port/selinux_enforcing/v"$VER"_"$(date +'%Y_%m_%d')
+OUT_DIR_PERMISSIVE="/home/lss/Desktop/phone/note5port/v"$VER"_"$(date +'%Y_%m_%d')
 
 # should we make a TWRP flashable zip? (1 = yes, 0 = no)
 MAKE_ZIP=1
@@ -62,7 +62,7 @@ CLEAN_BUILD()
 	cd $RDIR
 	rm -rf build
 	echo "Removing old boot.img..."
-	rm -f ik.zip/boot.img
+	rm -f lssramdisk/lss.zip/boot.img
 	echo "Removing old zip/tar.md5 files..."
 	rm -f $OUT_DIR/$OUT_NAME.zip
 	rm -f $OUT_DIR/$OUT_NAME.tar.md5
@@ -100,13 +100,14 @@ BUILD_BOOT_IMG()
 		--pagesize 2048 \
 		--ramdisk_offset 0x02000000 \
 		--tags_offset 0x01E00000 \
-		--output $RDIR/ik.zip/boot.img
+		--output $RDIR/lssramdisk/lss.zip/boot.img
+		echo -n "SEANDROIDENFORCE" >> $RDIR/lssramdisk/lss.zip/boot.img 
 }
 
 CREATE_ZIP()
 {
 	echo "Compressing to TWRP flashable zip file..."
-	cd $RDIR/ik.zip
+	cd $RDIR/lssramdisk/lss.zip
 	zip -r -9 - * > $OUT_DIR/$OUT_NAME.zip
 	cd $RDIR
 }
