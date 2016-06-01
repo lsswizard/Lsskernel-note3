@@ -46,7 +46,7 @@ SET_KERNEL_VERSION()
 	KERNEL_VERSION=$VARIANT-$VER-note5port
 
 	# output filename of flashable kernel
-	OUT_NAME=idleKernel-hlte-$KERNEL_VERSION
+	OUT_NAME=lsskernel-hlte-$KERNEL_VERSION
 }
 
 ############## SCARY NO-TOUCHY STUFF ###############
