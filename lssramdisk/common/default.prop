@@ -1,41 +1,28 @@
 #
-# Correct build.prop info
-#
-# Don't fix model info, prevents Note 5 features from working
-#ro.product.model=SM-N9005
-#ro.product.brand=samsung
-#ro.product.name=hltexx
-#ro.product.device=hlte
-ro.product.board=MSM8974
-ro.product.manufacturer=samsung
-ro.product.cpu.abi=armeabi-v7a
-ro.product.cpu.abi2=armeabi
-ro.product.cpu.abilist=armeabi-v7a,armeabi
-ro.product.cpu.abilist32=armeabi-v7a,armeabi
-ro.product.cpu.abilist64=
-ro.board.platform=msm8974
-ro.chipname=MSM8974
-#
 # ADDITIONAL_DEFAULT_PROPERTIES
 #
-persist.cne.feature=0
+telephony.lteOnCdmaDevice=0
+rild.libpath=/system/lib/libsec-ril.so
+rild.libpath2=/system/lib/libsec-ril-dsds.so
 persist.security.ams.enforcing=0
 ro.secure=0
-ro.adb.secure=0
-ro.allow.mock.location=1
+ro.allow.mock.location=0
 ro.debuggable=1
+ro.adb.secure=0
 ro.zygote=zygote32
-persist.sys.strict_op_enable=false
-persist.sys.whitelist=/system/etc/whitelist_appops.xml
-persist.sys.usb.config=mtp
-persist.sys.io.scheduler=sio
-persist.sys.ssr.enable_debug=0
-camera2.portability.force_api=1
-dalvik.vm.dex2oat-Xms=64m
-dalvik.vm.dex2oat-Xmx=512m
 dalvik.vm.image-dex2oat-Xms=64m
 dalvik.vm.image-dex2oat-Xmx=64m
+dalvik.vm.dex2oat-Xms=64m
+dalvik.vm.dex2oat-Xmx=512m
 ro.dalvik.vm.native.bridge=0
-ro.securestorage.support=false
-ro.config.knox=0
-ro.config.tima=0
+debug.atrace.tags.enableflags=0
+persist.sys.strict_op_enable=false
+persist.sys.whitelist=/system/etc/whitelist_appops.xml
+camera2.portability.force_api=1
+persist.sys.usb.config=mtp,adb
+#
+# BOOTIMAGE_BUILD_PROPERTIES
+#
+ro.bootimage.build.date=Tue Mar 15 00:07:36 KST 2016
+ro.bootimage.build.date.utc=1457968056
+ro.bootimage.build.fingerprint=samsung/hero2ltexx/hero2lte:6.0.1/MMB29K/G935FXXU1APC8:user/test-keys

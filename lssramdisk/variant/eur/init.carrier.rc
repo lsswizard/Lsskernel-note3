@@ -3,43 +3,11 @@
 # IMPORTANT: Do not create world writable files or directories.
 # This is a common source of Android security bugs.
 #
-
-on early-boot
-    chown bluetooth net_bt_stack /dev/ttyHS0
-    chmod 0660 /dev/ttyHS0
-
-# permissions for Multiverse
-    chown system system /sys/class/sec/Multiverse/Brane
-    chmod 0600 /sys/class/sec/Multiverse/Brane
-
-# efs
-    chmod 0660 /dev/block/mmcblk0p12
-    chown system system /dev/block/mmcblk0p12
-
-on init
-    mkdir /preload 0771 system system
-
-on post-fs-data
-#Private Mode
-    mkdir /mnt/shell 0750 shell shell
-    mkdir /mnt/shell/privatemode 0700 system system
-    mkdir /storage/Private 0000 system system
-    mkdir /data/privatemode 0770 system system
-    chown system system /data/privatemode
-    restorecon /data/privatemode
-
+  
 on boot
-# permission for Input Device(Touchkey).
-    chmod 0660 /sys/class/input/input1/enabled
-    chown system system /sys/class/input/input1/enabled
-    chmod 0660 /sys/class/input/input2/enabled
-    chown system system /sys/class/input/input2/enabled
-    chown radio system /sys/class/sec/sec_touchkey/touch_sensitivity
-    chown radio system /sys/class/sec/sec_touchkey/touchkey_firm_update
-    chown system radio /sys/class/sec/sec_touchkey/glove_mode
-    chown system radio /sys/class/sec/sec_touchkey/flip_mode
-    chown system radio /sys/class/sec/sec_touchkey/1mm_mode
-    chown system radio /sys/class/sec/sec_touchkey/boost_level
+    # IPSec for VOLTE
+    chown root system /dev/socket
+    chmod 0775 /dev/socket
 
     # NFC_BROADCOM
     chmod 0600 /dev/bcm2079x
@@ -51,114 +19,15 @@ on boot
     chown nfc nfc /data/bcmnfc
     chown nfc nfc /data/bcmnfc/param
 
-# MSP FactoryApp
-    mkdir /efs/FactoryApp 0775 system system
-
-# permissions for bluetooth.
-    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
-    chown bluetooth net_bt_stack ro.bt.bdaddr_path
-    chown radio net_bt_stack /efs/bluetooth/bt_addr
-    chmod 0640 /efs/bluetooth/bt_addr
-    chmod 0660 /sys/class/rfkill/rfkill0/state
-    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
-    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
-
-# DualWave
-    chown system system /sys/kernel/DualWave/sound/DUALWAVE_CONFIG
-
-# bluetooth LPM
-    chmod 0660 /proc/bluetooth/sleep/lpm
-    chmod 0220 /proc/bluetooth/sleep/btwrite
-    chown bluetooth net_bt_stack /proc/bluetooth/sleep/lpm
-    chown bluetooth net_bt_stack /proc/bluetooth/sleep/btwrite
-    chmod 0600 /dev/btlock
-    chown bluetooth bluetooth /dev/btlock
-
-# permission for Expander.
-    chown system system /sys/class/sec/expander/expgpio
-
-# permission for mDNIe
-    chown system system /sys/class/mdnie/mdnie/sensorRGB
-
-# permission for IPSec
-    chown root system /dev/socket
-    chmod 0775 /dev/socket
-
-# bluetooth dhcp config
-
-   service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
-    class main
-    disabled
-    oneshot
+on init
+    # Support Preload install apks
+    mkdir /preload 0771 system system
 
 on fs
-
-  # Support Preload install apks
-    wait /dev/block/platform/msm_sdcc.1/by-name/hidden 
+    # Support Preload install apks
+    wait /dev/block/platform/msm_sdcc.1/by-name/hidden
     mount ext4 /dev/block/platform/msm_sdcc.1/by-name/hidden /preload nosuid nodev ro barrier=1
     setprop storage.preload.complete 1
-
-#For Absolute Persistence Partition
-
-    mkdir /persdata 0755 system system
-    mkdir /persdata/absolute 0750 system system
-
-    wait /dev/block/platform/msm_sdcc.1/by-name/persdata
-    check_fs /dev/block/platform/msm_sdcc.1/by-name/persdata ext4
-    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/persdata /persdata/absolute nosuid nodev barrier=1
-
-    chown system system /persdata
-    chmod 0755 /persdata
-    chown system system /persdata/absolute
-    chmod 0750 /persdata/absolute
-
-# service for TZPR provisioning version check app
-service scranton_RD /system/bin/scranton_RD
-    class main
-    user root
-    disabled
-    oneshot
-
-# bootchecker
-service bootchecker /system/bin/bootchecker
-    class late_start
-    user system
-    group system log
-    oneshot
-
-# start for TZPR provisioning version check app
-on property:sys.qseecomd.enable=true
-    start scranton_RD
-
-# TODO: replace it with device's DEXPREOPT_BOOT_JARS
-
-# AT Distributor for factory test
-service at_distributor /system/bin/at_distributor
-    class late_start
-    user root
-    group radio misc log
-
-# diag app for cp uart
-service diag_uart_log /system/bin/diag_uart_log
-    class main
-    user root
-    group radio
-
-# service for TZPR provisioning version check app
-service scranton_RD /system/bin/scranton_RD
-    class main
-    user root
-    disabled
-    oneshot
-
-# start for TZPR provisioning version check app
-on property:sys.qseecomd.enable=true
-    start scranton_RD
-
-    mkdir /efs/drm/playready 0775
-    chown drm system /efs/drm/playready
-    chmod 0775 /efs/drm/playready
-
 
 # IPSec for VOLTE
 service ipsec-daemon /system/bin/IPSecService
@@ -166,38 +35,9 @@ service ipsec-daemon /system/bin/IPSecService
     socket ipsec_socket stream 660 system system
     user system
     group system net_raw inet net_admin
-    
-    # service for TZPR provisioning version check app
 
-service scranton_RD /system/bin/scranton_RD
-
+# bluetooth dhcp config
+service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
     class main
-
-    user root
-
     disabled
-
     oneshot
-
- 
-
-# start for TZPR provisioning version check app
-
-on property:sys.qseecomd.enable=true
-
-    start scranton_RD
-
-
-    mkdir /efs/drm/playready 0775
-
-    chown drm system /efs/drm/playready
-
-    chmod 0775 /efs/drm/playready
-
-## WTL_EDM_START
-## EDM AuditLog
-service edmaudit /system/bin/edmaudit
-    class main
-    user root
-
-## WTL_EDM_END

@@ -8,10 +8,11 @@ on boot
 service ril-daemon /system/bin/rild
     class main
     socket rild stream 660 root radio
+    socket sap_uim_socket1 stream 660 bluetooth bluetooth
     socket rild-debug stream 660 radio system
     socket rild-cas stream 660 casdrm mmb
     user root
-    group radio cache inet misc audio log qcom_diag system drmrpc vpn system
+    group group radio cache inet misc audio log vpn system qcom_diag
 
 service diag_uart_log /system/bin/diag_uart_log
     class main
@@ -21,30 +22,23 @@ service diag_uart_log /system/bin/diag_uart_log
 # QMUX must be in multiple groups to support external process connections
 service qmuxd /system/bin/qmuxd
     class main
-    user root
+    user radio
     group radio audio bluetooth gps qcom_diag
+    disabled
 
 service diag_mdlog_start /system/bin/diag_mdlog
     class late_start
-    user sdcard_rw
+    user shell
     group system qcom_diag sdcard_rw sdcard_r media_rw
     disabled
     oneshot
 
 service diag_mdlog_stop /system/bin/diag_mdlog -k
     class late_start
-    user sdcard_rw
+    user shell
     group system qcom_diag sdcard_rw sdcard_r media_rw
     disabled
     oneshot
-
-service ril-daemon1 /system/bin/rild -c 2
-    class main
-    socket rild2 stream 660 root radio
-    socket rild-debug2 stream 660 radio system
-    user root
-    group radio cache inet misc audio log qcom_diag system drmrpc sdcard_r sdcard_rw shell
-    disabled
 
 service SMD-daemon /system/bin/smdexe
     class main

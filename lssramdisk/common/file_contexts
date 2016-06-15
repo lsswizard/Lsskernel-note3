@@ -1019,6 +1019,11 @@
 /sys/class/kgsl/kgsl-3d0/dispatch(/.*)?     --            u:object_r:sysfs_ss_writable:s0
 /sys/class/power_supply/battery/camera                    u:object_r:sysfs_app_writable:s0
 
+############################# 
+# Device node of qcomm
+#
+/dev/snd/pcmC[0-9]*D[0-9]*c u:object_r:audio_capture_device:s0
+
 #line 1 "vendor/samsung/common/sepolicy/slsi_common/file_contexts"
 
 ## CP daemon

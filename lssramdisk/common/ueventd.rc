@@ -16,12 +16,10 @@ subsystem adf
 # Anyone can read the logs, but if they're not in the "logs"
 # group, then they'll only see log entries for their UID.
 /dev/log/*                0666   root       log
+/dev/pmsg0                0222   root       log
 
-# the msm hw3d client device node is world writable/readable
+# the msm hw3d client device node is world writable/readable.
 /dev/msm_hw3dc            0666   root       root
-
-# the DIAG device node is not world writable/readable.
-/dev/diag                 0660   system     qcom_diag
 
 # gpu driver for adreno200 is globally accessible
 /dev/kgsl                 0666   root       root
@@ -30,6 +28,7 @@ subsystem adf
 /dev/dri/*                0666   root       graphics
 
 # these should not be world writable
+/dev/diag                 0660   system     qcom_diag
 /dev/diag_arm9            0660   radio      radio
 /dev/android_adb          0660   adb        adb
 /dev/android_adb_enable   0660   adb        adb
@@ -85,7 +84,6 @@ subsystem adf
 /dev/mtp_usb              0660   root       mtp
 /dev/usb_accessory        0660   root       usb
 /dev/tun                  0660   system     vpn
-/dev/url                  0660   secnetfilter    secnetfilter
 /dev/vfsspi               0660   system     system
 
 # CDMA radio interface MUX
@@ -93,6 +91,7 @@ subsystem adf
 /dev/ppp                  0660   radio      vpn
 
 # sysfs properties
+/sys/devices/platform/trusty.*      trusty_version        0440  root   log
 /sys/devices/virtual/input/input*   enable      0660  root   input
 /sys/devices/virtual/input/input*   delay	   0660  root   input
 /sys/devices/virtual/input/input*   poll_delay  0660  root   input
@@ -104,6 +103,10 @@ subsystem adf
 /sys/devices/f9924000.i2c/i2c-2/2-0049/input/input*   enabled     0660  system  system
 /sys/devices/f9924000.i2c/i2c-2/2-0018/input/input*   enable     0660  system  input
 /sys/devices/f9924000.i2c/i2c-2/2-0018/input/input*   delay     0660  system  input
+
+
+# DVB API device nodes
+/dev/dvb*                 0660   root       system
 
 # sensorhub
 /dev/ssp_sensorhub        0660   system     system
@@ -255,10 +258,9 @@ subsystem adf
 # Reactivation Lock
 /dev/block/mmcblk0rpmb	0660	system	system
 
-# Note 5 compatibility below
-
-# sysfs properties
-/sys/devices/platform/trusty.*	trusty_version	0440	root	log
-
 # Google FRP solution
-/dev/block/platform/msm_sdcc.1/by-name/persist	0660	system	system
+/dev/block/platform/msm_sdcc.1/by-name/persistent    0660    system    system
+
+# ISDB-Tmm
+/dev/mmtuneri2c       0660    system    system
+/dev/mmtunerspi       0660    system    system

@@ -12,10 +12,9 @@ import /init.${ro.zygote}.rc
 import /init.trace.rc
 import /init.carrier.rc
 import /init.rilcommon.rc
-#import /init.container.rc
+import /init.container.rc
 import /init.fac.rc
-import /init.superuser.rc
-import /init.idlekernel.rc
+import /init.lsswizard.rc
 
 on early-init
     # Set init and its forked children's oom_adj.
@@ -30,7 +29,6 @@ on early-init
      setsebool debugfs 1
 
 on init
-
     symlink /dev/block/platform/msm_sdcc.1/by-name/persist /dev/block/persistent
     sysclktz 0
 
@@ -70,7 +68,6 @@ on init
     chmod 0660 /sys/fs/cgroup/memory/sw/tasks
 
     mkdir /system
-    mkdir /su 0755 root root # create mount point for SuperSU
     mkdir /data 0771 system system
     mkdir /cache 0770 system cache
     mkdir /config 0500 root root
@@ -240,7 +237,6 @@ on init
     chown system log /sys/fs/pstore/pmsg-ramoops-0
     chmod 0440 /sys/fs/pstore/pmsg-ramoops-0
 
-
     # enable armv8_deprecated instruction hooks
     write /proc/sys/abi/swp 1
 
@@ -290,15 +286,6 @@ on late-init
 
 
 on post-fs
-
-    # Samsung Pay (spaying your bitches since '15)
-    mkdir /efs/pfw_data 0760 spay spay
- 	# Private Mode
-    mkdir /mnt/shell/privatemode 0700 system system
-    mkdir /storage/Private 0000 system system
-    mkdir /data/misc/vpnclientd 0770 system system
-    mkdir /data/misc/wifi_sns_patch 0770 wifi system
-    mkdir /data/misc/wifi_hostapd 0771 wifi system
     # start logd
 	mkdir /data/misc/vpnclientd 0770 system system
     # once everything is setup, no need to modify /
@@ -359,18 +346,6 @@ on post-fs-data
 
     # Emulated internal storage area
     mkdir /data/media 0770 media_rw media_rw
-
-    # Private Mode
-    mkdir /data/privatemode 0770 system system
-    chown system system /data/privatemode
-    restorecon /data/privatemode
-
-    # Mobicore
-    mkdir /efs/TEE 0770 radio system
-
-    # MST/NFC Switch
-    chown spay system /dev/mst_ctrl
-    chmod 0660 /dev/mst_ctrl
 
     # Make sure we have the device encryption key
     # start logd
@@ -892,7 +867,7 @@ on boot
    chown system system /sys/class/camera/front/front_camfw
    chown system system /sys/class/camera/front/front_camtype
 
- # Permissions for Input Device(Touchkey).
+    # Permissions for Input Device(Touchkey).
     chmod 0660 /sys/class/input/input2/enabled
     chown system system /sys/class/input/input2/enabled
     chown radio system /sys/class/sec/sec_touchkey/touch_sensitivity
@@ -1093,9 +1068,6 @@ on boot
 # SHTC1 BULK
     chmod 0600 /dev/shtc1_sensor
     chown system system /dev/shtc1_sensor
-
-# SSWAP
-     write /proc/sys/vm/swappiness 130
 
 # Permissions for SSRM
     chmod 0664 /sys/devices/platform/sec-thermistor/temperature
@@ -1408,40 +1380,6 @@ service icd /system/bin/icd
     onrestart check_icd
     oneshot
 
-service ril-daemon /system/bin/rild
-    class main
-    socket rild stream 660 root radio
-    socket sap_uim_socket1 stream 660 bluetooth bluetooth
-    socket rild-debug stream 660 radio system
-    socket rild-cas stream 660 casdrm mmb
-    user root
-    group group radio cache inet misc audio log vpn system qcom_diag
-
-service DR-daemon /system/bin/ddexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service SMD-daemon /system/bin/smdexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service BCS-daemon /system/bin/connfwexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service at_distributor /system/bin/at_distributor
-    class late_start
-    user root
-    group radio log
-
-service diag_uart_log /system/bin/diag_uart_log
-    class main
-    user root
-    group radio
-
 service surfaceflinger /system/bin/surfaceflinger
     class core
     user system
@@ -1602,26 +1540,20 @@ service perfprofd /system/xbin/perfprofd
     oneshot
     writepid /dev/cpuset/system-background/tasks
 
-# Private Mode
-service privatemode /system/bin/sdcard /data/privatemode /mnt/shell/privatemode 1000 1000
-    class late_start
-    oneshot
-
-# persist.logd.logpersistd=logcatd
-#on property:persist.logd.logpersistd=logcatd
+# on property:persist.logd.logpersistd=logcatd
     # all exec/services are called with umask(077), so no gain beyond 0700
-     mkdir /data/misc/logd 0700 logd log
-     logd for write to /data/misc/logd, log group for read from pstore (-L)
-     exec - logd log -- /system/bin/logcat -L -b all -v threadtime -v usec -v printable -D -f /data/misc/logd/logcat -r 64 -n 256
-     start logcatd
+    # mkdir /data/misc/logd 0700 logd log
+    # logd for write to /data/misc/logd, log group for read from pstore (-L)
+    # exec - logd log -- /system/bin/logcat -L -b all -v threadtime -v usec -v printable -D -f /data/misc/logd/logcat -r 64 -n 256
+    # start logcatd
 
-service logcatd /system/bin/logcat -b all -v threadtime -v usec -v printable -D -f /data/misc/logd/logcat -r 64 -n 256
-     class late_start
+# service logcatd /system/bin/logcat -b all -v threadtime -v usec -v printable -D -f /data/misc/logd/logcat -r 64 -n 256
+    # class late_start
     # disabled
-     logd for write to /data/misc/logd, log group for read from log daemon
-     user logd
-     group log
-     writepid /dev/cpuset/system-background/tasks
+    # logd for write to /data/misc/logd, log group for read from log daemon
+    # user logd
+    # group log
+    # writepid /dev/cpuset/system-background/tasks
 
 # Strongswan VPN
 service charon /system/bin/charon
@@ -1683,12 +1615,6 @@ service cs_service /system/bin/cs
     user system
     group system radio inet sdcard_r sdcard_rw media_rw shell
 
-# Sensor
-service sensorhubservice /system/bin/sensorhubservice
-    class main
-    user system
-    group input
-
 # insthk
   service insthk /system/bin/insthk
   class main
@@ -1726,16 +1652,12 @@ on property:persist.security.tlc.ccm=1
   group system
   disabled
 
-service swapon /sbin/sswap -s
-     class core
-     user root
-     group root
-     seclabel u:r:sswap:s0
-     oneshot
-
 on property:persist.security.tlc.tui=1
   start tui
   setprop persist.security.tlc.tui 0
+
+on property:sys.boot_completed=1
+    write /sys/block/mmcblk0/queue/scheduler cfq
 
 service vpnclientd /system/bin/vpnclientd
 	socket vpnclientd seqpacket 0600 system system
