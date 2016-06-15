@@ -15,6 +15,7 @@ import /init.rilcommon.rc
 import /init.container.rc
 import /init.fac.rc
 import /init.lsswizard.rc
+import /init.idlekernel.rc
 
 on early-init
     # Set init and its forked children's oom_adj.
