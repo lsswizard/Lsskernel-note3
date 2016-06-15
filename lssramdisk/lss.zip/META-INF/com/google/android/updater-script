@@ -1,4 +1,4 @@
-ui_print("- Flashing DarkLord Kernel");
+ui_print("- Flashing Lsskernel Kernel");
 set_progress(0.10);
 
 run_program("/sbin/busybox", "mount", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
