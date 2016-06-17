@@ -39,12 +39,11 @@ VER=$(cat $RDIR/VERSION)
 
 # kernel version string appended to 3.4.x-idleKernel-hlte-
 # (shown in Settings -> About device)
-KERNEL_VERSION=$VARIANT-$VER-note5port
-
+KERNEL_VERSION=$VARIANT-$VER-mmport
 # output directory of flashable kernel
 OUT_DIR=$RDIR
 # output filename of flashable kernel
-OUT_NAME=lsskernel-hlte-$KERNEL_VERSION
+OUT_NAME=lsskerneltw-hlte-$KERNEL_VERSION
 
 # should we make a TWRP flashable zip? (1 = yes, 0 = no)
 MAKE_ZIP=1

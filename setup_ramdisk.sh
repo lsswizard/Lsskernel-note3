@@ -61,7 +61,7 @@ SETUP_RAMDISK()
 	mkdir -p build/ramdisk
 	cp -r lssramdisk/common/* lssramdisk/variant/$VARIANT/* build/ramdisk
 	cd $RDIR/build/ramdisk
-	mkdir -p dev proc sys system kmod carrier data
+	mkdir -p dev proc sys system kmod carrier data oem 
 	echo "Copying kernel modules to ramdisk..."
 	find $RDIR/build -name *.ko -not -path */ramdisk/* -exec cp {} kmod \;
 }
