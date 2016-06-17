@@ -26,17 +26,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Test
-if [ -e /data/DarkLordKernel.log ]; then
-    rm /data/DarkLordKernel.log
-fi
-
-echo  Kernel script is working !!! >> /data/DarkLordKernel.log
-echo "excecuted on $(date +"%d-%m-%Y %r" )" >> /data/DarkLordKernel.log
-
-mount -o remount,rw /system
-
 # Init.d
+mount -o remount,rw /system
 if [ ! -d /system/etc/init.d ]; then
     mkdir /system/etc/init.d
 fi

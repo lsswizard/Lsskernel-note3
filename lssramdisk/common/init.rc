@@ -1144,6 +1144,8 @@ on property:sys.init_log_level=*
 
 on charger
     mount ext4 /dev/block/platform/msm_sdcc.1/by-name/system /system wait ro
+    mount f2fs /dev/block/platform/msm_sdcc.1/by-name/system /system wait ro
+    
     copy /system/etc/battery_charging_temp.data /sys/class/power_supply/battery/batt_temp_table
     chmod 0664 /sys/class/power_supply/battery/batt_temp_table
     chown system radio /sys/class/power_supply/battery/batt_temp_table

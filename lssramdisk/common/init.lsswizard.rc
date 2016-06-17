@@ -25,13 +25,13 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-service darklord-init /system/bin/sh /init.lsswizard.sh
+service lsswizard-init /system/bin/sh /init.lsswizard.sh
     class main
     user root
     oneshot
 
 on property:sys.boot_completed=1
-    start darklord-init
+    start lsswizard-init
 
 on post-fs
     # Private Mode
