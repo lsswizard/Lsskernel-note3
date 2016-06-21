@@ -76,7 +76,7 @@
 		cell-index = <19>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 87 0 /* sda */
-			&msmgpio 88 0 /* scl */
+				&msmgpio 88 0 /* scl */
 		>;
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -107,7 +107,7 @@
 		cell-index = <21>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 95 0 /* sda */
-			&msmgpio 96 0 /* scl */
+		&msmgpio 96 0 /* scl */
 		>;
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -132,10 +132,8 @@
 		cell-index = <22>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 109 0 /* sda */
-			&msmgpio 108 0 /* scl */
+		&msmgpio 108 0 /* scl */
 		>;
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		barcode_emul_ice4@19 {
 			compatible = "barcode_hlte,barcode_emul_hlte";
@@ -156,7 +154,7 @@
 		cell-index = <23>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 60 0 /* sda */
-			&msmgpio 61 0 /* scl */
+		&msmgpio 61 0 /* scl */
 		>;
 	};
 
@@ -209,8 +207,8 @@
 		   SEC_BATTERY_FULL_CONDITION_NOTIMEFULL |
 		   SEC_BATTERY_FULL_CONDITION_VCELL */
 		battery,full_condition_type = <13>;
-		battery,full_condition_soc = <97>;
-		battery,full_condition_vcell = <4300>;
+		battery,full_condition_soc = <93>;
+		battery,full_condition_vcell = <4250>;
 
 		battery,recharge_check_count = <1>;
 		battery,recharge_condition_type = <4>; /* SEC_BATTERY_RECHARGE_CONDITION_VCELL */
