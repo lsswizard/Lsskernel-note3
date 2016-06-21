@@ -46,6 +46,9 @@ static void sdcardfs_put_super(struct super_block *sb)
 		path_put(&spd->obbpath);
 	}
 
+	if(spd->options.label)
+		kfree(spd->options.label);
+
 	/* decrement lower super references */
 	s = sdcardfs_lower_super(sb);
 	sdcardfs_set_lower_super(sb, NULL);
@@ -204,17 +207,17 @@ static int sdcardfs_show_options(struct seq_file *m, struct dentry *root)
 	struct sdcardfs_mount_options *opts = &sbi->options;
 
 	if (opts->fs_low_uid != 0)
-		seq_printf(m, ",uid=%u", opts->fs_low_uid);
+		seq_printf(m, ",low_uid=%u", opts->fs_low_uid);
 	if (opts->fs_low_gid != 0)
-		seq_printf(m, ",gid=%u", opts->fs_low_gid);
-
-	if (opts->derive == DERIVE_NONE)
-		seq_printf(m, ",derive=none");
-	else if (opts->derive == DERIVE_LEGACY)
-		seq_printf(m, ",derive=legacy");
-	else if (opts->derive == DERIVE_UNIFIED)
-		seq_printf(m, ",derive=unified");
-
+		seq_printf(m, ",low_gid=%u", opts->fs_low_gid);
+	if (opts->gid != 0)
+		seq_printf(m, ",gid=%u", opts->gid);
+	if (opts->userid != 0)
+		seq_printf(m, ",userid=%u", opts->userid);
+	if (opts->multi_user)
+		seq_printf(m, ",multi_user");
+	if (opts->mask != 0)
+		seq_printf(m, ",mask=%04o", opts->mask);
 	if (opts->reserved_mb != 0)
 		seq_printf(m, ",reserved=%uMB", opts->reserved_mb);
 
