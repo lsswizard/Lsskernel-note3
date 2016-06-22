@@ -79,7 +79,7 @@
 		cell-index = <19>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 87 0 /* sda */
-				&msmgpio 88 0 /* scl */
+			&msmgpio 88 0 /* scl */
 		>;
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -110,7 +110,7 @@
 		cell-index = <21>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 95 0 /* sda */
-		&msmgpio 96 0 /* scl */
+			&msmgpio 96 0 /* scl */
 		>;
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -134,8 +134,10 @@
 		cell-index = <22>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 109 0 /* sda */
-		&msmgpio 108 0 /* scl */
+			&msmgpio 108 0 /* scl */
 		>;
+		#address-cells = <1>;
+		#size-cells = <0>;
 
 		barcode_emul_ice4@19 {
 			compatible = "barcode_hlte,barcode_emul_hlte";
@@ -156,7 +158,7 @@
 		cell-index = <23>;
 		compatible = "i2c-gpio";
 		gpios = <&msmgpio 60 0 /* sda */
-		&msmgpio 61 0 /* scl */
+			&msmgpio 61 0 /* scl */
 		>;
 	};
 
@@ -209,7 +211,7 @@
 		   SEC_BATTERY_FULL_CONDITION_NOTIMEFULL |
 		   SEC_BATTERY_FULL_CONDITION_VCELL */
 		battery,full_condition_type = <13>;
-		battery,full_condition_soc = <93>;
+		battery,full_condition_soc = <97>;
 		battery,full_condition_vcell = <4250>;
 
 		battery,recharge_check_count = <1>;
@@ -233,8 +235,8 @@
 			battery,ovp_uvlo_check_type = <3>; /* SEC_BATTERY_OVP_UVLO_CHGPOLLING */
 			battery,full_check_type = <7>; /* SEC_BATTERY_FULLCHARGED_CHGPSY */
 
-			battery,input_current_limit = <1800 460 460 1800 460 900 1000 460 460 1000 650 1800 1800 460 1300 300 700 1300 300 1000 1800 460 460>;
-			battery,fast_charging_current = <2100 0 460 2100 460 1200 1000 460 0 1200 750 2100 2100 0 1300 300 700 1300 300 1000 2100 0 0>;
+			battery,input_current_limit = <1800 460 460 1800 1200 900 1000 460 460 1000 650 1800 1800 460 1300 300 700 1300 300 1000 1800 460 460>;
+			battery,fast_charging_current = <2100 0 460 2100 1000 1200 1000 460 0 1200 750 2100 2100 0 1300 300 700 1300 300 1000 2100 0 0>;
 			battery,full_check_current_1st = <200 0 200 200 200 200 200 200 0 200 200 200 200 0 200 200 200 200 200 200 200 0 0>;
 			battery,full_check_current_2nd = <2400 0 2400 2400 2400 2400 2400 2400 0 2400 2400 2400 2400 0 2400 2400 2400 2400 2400 2400 2400 0 0>;
 		};
