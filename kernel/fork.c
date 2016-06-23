@@ -316,7 +316,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig)
 	tsk->splice_pipe = NULL;
 
 	account_kernel_stack(ti, 1);
-	
+
 	return tsk;
 
 out:
@@ -372,13 +372,12 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 		}
 		charge = 0;
 		if (mpnt->vm_flags & VM_ACCOUNT) {
-			unsigned long len;
-			len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
+			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
 			if (security_vm_enough_memory_mm(oldmm, len)) /* sic */
 				goto fail_nomem;
 			charge = len;
 		}
-		tmp = kmem_cache_zalloc(vm_area_cachep, GFP_KERNEL);
+		tmp = kmem_cache_alloc(vm_area_cachep, GFP_KERNEL);
 		if (!tmp)
 			goto fail_nomem;
 		*tmp = *mpnt;
@@ -430,7 +429,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
 		__vma_link_rb(mm, tmp, rb_link, rb_parent);
 		rb_link = &tmp->vm_rb.rb_right;
 		rb_parent = &tmp->vm_rb;
-		uksm_vma_add_new(tmp);
+
 		mm->map_count++;
 		retval = copy_page_range(mm, oldmm, mpnt);
 
@@ -1037,11 +1036,6 @@ static int copy_signal(unsigned long clone_flags, struct task_struct *tsk)
 	sig->nr_threads = 1;
 	atomic_set(&sig->live, 1);
 	atomic_set(&sig->sigcnt, 1);
-
-	/* list_add(thread_node, thread_head) without INIT_LIST_HEAD() */
-	sig->thread_head = (struct list_head)LIST_HEAD_INIT(tsk->thread_node);
-	tsk->thread_node = (struct list_head)LIST_HEAD_INIT(sig->thread_head);
-
 	init_waitqueue_head(&sig->wait_chldexit);
 	if (clone_flags & CLONE_NEWPID)
 		sig->flags |= SIGNAL_UNKILLABLE;
@@ -1140,6 +1134,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 {
 	int retval;
 	struct task_struct *p;
+	int cgroup_callbacks_done = 0;
 
 	if ((clone_flags & (CLONE_NEWNS|CLONE_FS)) == (CLONE_NEWNS|CLONE_FS))
 		return ERR_PTR(-EINVAL);
@@ -1224,6 +1219,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 
 	p->utime = p->stime = p->gtime = 0;
 	p->utimescaled = p->stimescaled = 0;
+	
 #ifndef CONFIG_VIRT_CPU_ACCOUNTING
 	p->prev_utime = p->prev_stime = 0;
 #endif
@@ -1301,7 +1297,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		goto bad_fork_cleanup_policy;
 	retval = audit_alloc(p);
 	if (retval)
-		goto bad_fork_cleanup_perf;
+		goto bad_fork_cleanup_policy;
 	/* copy all the process information */
 	retval = copy_semundo(clone_flags, p);
 	if (retval)
@@ -1428,6 +1424,14 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		goto bad_fork_free_pid;
 	}
 
+	if (clone_flags & CLONE_THREAD) {
+		current->signal->nr_threads++;
+		atomic_inc(&current->signal->live);
+		atomic_inc(&current->signal->sigcnt);
+		p->group_leader = current->group_leader;
+		list_add_tail_rcu(&p->thread_group, &p->group_leader->thread_group);
+	}
+
 	if (likely(p->pid)) {
 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
 
@@ -1442,15 +1446,6 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 			list_add_tail(&p->sibling, &p->real_parent->children);
 			list_add_tail_rcu(&p->tasks, &init_task.tasks);
 			__this_cpu_inc(process_counts);
-		} else {
-			current->signal->nr_threads++;
-			atomic_inc(&current->signal->live);
-			atomic_inc(&current->signal->sigcnt);
-			p->group_leader = current->group_leader;
-			list_add_tail_rcu(&p->thread_group,
-					  &p->group_leader->thread_group);
-			list_add_tail_rcu(&p->thread_node,
-					  &p->signal->thread_head);
 		}
 		attach_pid(p, PIDTYPE_PID, pid);
 		nr_threads++;
@@ -1458,9 +1453,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 
 	total_forks++;
 	spin_unlock(&current->sighand->siglock);
-	syscall_tracepoint_update(p);
 	write_unlock_irq(&tasklist_lock);
-
 	proc_fork_connector(p);
 	cgroup_post_fork(p);
 	if (clone_flags & CLONE_THREAD)
@@ -1497,16 +1490,15 @@ bad_fork_cleanup_semundo:
 	exit_sem(p);
 bad_fork_cleanup_audit:
 	audit_free(p);
-bad_fork_cleanup_perf:
-	perf_event_free_task(p);
 bad_fork_cleanup_policy:
+	perf_event_free_task(p);
 #ifdef CONFIG_NUMA
 	mpol_put(p->mempolicy);
 bad_fork_cleanup_cgroup:
 #endif
 	if (clone_flags & CLONE_THREAD)
 		threadgroup_change_end(current);
-	cgroup_exit(p, 0);
+	cgroup_exit(p, cgroup_callbacks_done);
 	delayacct_tsk_free(p);
 	module_put(task_thread_info(p)->exec_domain->module);
 bad_fork_cleanup_count:
