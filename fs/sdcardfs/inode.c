@@ -829,6 +829,10 @@ out_err:
 	return err;
 }
 
+static struct inode *sdcardfs_get_lower_inode(struct inode *i)
+{
+	return sdcardfs_lower_inode(i);
+}
 
 const struct inode_operations sdcardfs_symlink_iops = {
 	.permission	= sdcardfs_permission,
@@ -839,7 +843,7 @@ const struct inode_operations sdcardfs_symlink_iops = {
 	.listxattr	= sdcardfs_listxattr,
 	.removexattr = sdcardfs_removexattr,
 #endif // SDCARD_FS_XATTR
-
+	.get_lower_inode = sdcardfs_get_lower_inode,
 	/* XXX Following operations are implemented, 
 	 *     but FUSE(sdcard) or FAT does not support them
 	 *     These methods are *NOT* perfectly tested. 
@@ -865,6 +869,7 @@ const struct inode_operations sdcardfs_dir_iops = {
 	.listxattr	= sdcardfs_listxattr,
 	.removexattr = sdcardfs_removexattr,
 #endif // SDCARD_FS_XATTR
+	.get_lower_inode = sdcardfs_get_lower_inode,
 	/* XXX Following operations are implemented, 
 	 *     but FUSE(sdcard) or FAT does not support them
 	 *     These methods are *NOT* perfectly tested. 
@@ -884,4 +889,5 @@ const struct inode_operations sdcardfs_main_iops = {
 	.listxattr	= sdcardfs_listxattr,
 	.removexattr = sdcardfs_removexattr,
 #endif // SDCARDFS_XATTR
+	.get_lower_inode = sdcardfs_get_lower_inode,
 };
