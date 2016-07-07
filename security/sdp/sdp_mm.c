@@ -19,9 +19,9 @@
 #include <linux/platform_device.h>
 #include <linux/sched.h>
 #include <linux/spinlock.h>
-#include <linux/sdp_mm.h>
 #include <linux/types.h>
 #include <linux/uaccess.h>
+#include <sdp/sdp_mm.h>
 
 #define SDP_MM_DEV	"sdp_mm"
 
@@ -112,7 +112,7 @@ static int32_t sdp_mm_set_proc_sensitive(void __user *argp)
 		sdp_mm.proc_id[sdp_mm.sensitive_proc_list_len] = proc_id;
 		sdp_mm.sensitive_proc_list_len++;
 	}
-	
+
 	return sdp_mm_set_process_sensitive(proc_id);
 }
 
