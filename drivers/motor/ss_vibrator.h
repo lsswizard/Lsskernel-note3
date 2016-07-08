@@ -1,100 +1,39 @@
-/*
-** =========================================================================
-** File:
-**     tspdrv.h
-**
-** Description:
-**     Constants and type definitions for the TouchSense Kernel Module.
-**
-** Portions Copyright (c) 2008-2010 Immersion Corporation. All Rights Reserved.
-**
-** This file contains Original Code and/or Modifications of Original Code
-** as defined in and that are subject to the GNU Public License v2 -
-** (the 'License'). You may not use this file except in compliance with the
-** License. You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software Foundation, Inc.,
-** 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA or contact
-** TouchSenseSales@immersion.com.
-**
-** The Original Code and all software distributed under the License are
-** distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
-** EXPRESS OR IMPLIED, AND IMMERSION HEREBY DISCLAIMS ALL SUCH WARRANTIES,
-** INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS
-** FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT. Please see
-** the License for the specific language governing rights and limitations
-** under the License.
-** =========================================================================
-*/
 
-#ifndef _TSPDRV_H
-#define _TSPDRV_H
-#define VIBE_DEBUG
-#include <mach/msm_iomap.h>
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 
-#include <linux/mfd/pm8xxx/pm8921.h>
-
-#define PM8921_GPIO_BASE  NR_GPIO_IRQS
-#define PM8921_GPIO_PM_TO_SYS(pm_gpio) (pm_gpio - 1 + PM8921_GPIO_BASE)
+#ifndef _VIBRATOR_H
+#define _VIBRATOR_H
 
 extern struct vibrator_platform_data vibrator_drvdata;
 
-/* Constants */
-#define MODULE_NAME                         "tspdrv"
-#define TSPDRV                              "/dev/"MODULE_NAME
-#define TSPDRV_MAGIC_NUMBER                 0x494D4D52
-
-#ifdef CONFIG_TACTILE_ASSIST
-#define TSPDRV_IOCTL_GROUP                  0x52
-#define TSPDRV_SET_MAGIC_NUMBER             _IO(TSPDRV_IOCTL_GROUP, 2)
-#endif
-
-#define TSPDRV_STOP_KERNEL_TIMER            _IO(TSPDRV_MAGIC_NUMBER & 0xFF, 1)
-
-/*
-** Obsolete IOCTL command
-** #define TSPDRV_IDENTIFY_CALLER           _IO(TSPDRV_MAGIC_NUMBER & 0xFF, 2)
-*/
-#define TSPDRV_ENABLE_AMP		_IO(TSPDRV_MAGIC_NUMBER & 0xFF, 3)
-#define TSPDRV_DISABLE_AMP		_IO(TSPDRV_MAGIC_NUMBER & 0xFF, 4)
-#define TSPDRV_GET_NUM_ACTUATORS	_IO(TSPDRV_MAGIC_NUMBER & 0xFF, 5)
-#define VIBE_MAX_DEVICE_NAME_LENGTH	64
-#define SPI_HEADER_SIZE	3   /* DO NOT CHANGE - SPI buffer header size */
- /* DO NOT CHANGE - maximum number of samples */
-#define VIBE_OUTPUT_SAMPLE_SIZE	50
-
-/* Type definitions */
-#ifdef __KERNEL__
-typedef struct {
-	u_int8_t nactuator_index;  /* 1st byte is actuator index */
-	u_int8_t nbit_depth;       /* 2nd byte is bit depth */
-	u_int8_t nbuffer_size;     /* 3rd byte is data size */
-	u_int8_t data_buffer[VIBE_OUTPUT_SAMPLE_SIZE];
-} samples_buffer;
-
-typedef struct {
-	int8_t nindex_playing_buffer;
-	u_int8_t nindex_output_value;
-	/* Use 2 buffers to receive samples from user mode */
-	samples_buffer actuator_samples[2];
-} actuator_samples_buffer;
-
-#endif
+struct pm_gpio vib_pwm = {
+	.direction = PM_GPIO_DIR_OUT,
+	.output_buffer = 0,
+	.output_value = 0,
+	.pull = PM_GPIO_PULL_NO,
+	.vin_sel = 0,
+	.out_strength = PM_GPIO_STRENGTH_HIGH,
+	.function = PM_GPIO_FUNC_1,
+	.inv_int_pol = 0,
+};
 
 /* Error and Return value codes */
-#define VIBE_S_SUCCESS		0	/* Success */
-#define VIBE_E_FAIL		 -4	/* Generic error */
+#define VIBRATION_SUCCESS	0	/* Success */
+#define VIBRATION_FAIL		-1	/* Generic error */
+#define VIBRATION_ON		1
+#define VIBRATION_OFF		0
 
-#if defined(VIBE_RECORD) && defined(VIBE_DEBUG)
-	void _RecorderInit(void);
-	void _RecorderTerminate(void);
-	void _RecorderReset(int nActuator);
-	void _Record(int actuatorIndex, const char *format, ...);
-#endif
-#define VIBRATION_ON            1
-#define VIBRATION_OFF           0
-
-int32_t g_nforce_32;
-
+#define MAX_INTENSITY		10000
 
 #if defined(CONFIG_MACH_KS01SKT) \
 	   || defined(CONFIG_MACH_KS01KTT) || defined(CONFIG_MACH_KS01LGT) \
@@ -108,6 +47,8 @@ int32_t g_nforce_32;
 #define MOTOR_STRENGTH			91
 #elif defined(CONFIG_MACH_HLTEUSC) || defined(CONFIG_MACH_HLTEVZW)
 #define MOTOR_STRENGTH			99/*MOTOR_STRENGTH 99 %*/
+#elif defined(CONFIG_MACH_KACTIVELTE_KOR)
+#define MOTOR_STRENGTH			95/*MOTOR_STRENGTH 95 %*/
 #elif defined(CONFIG_SEC_K_PROJECT) || defined(CONFIG_SEC_KACTIVE_PROJECT) || defined(CONFIG_SEC_KSPORTS_PROJECT) \
 	|| defined(CONFIG_SEC_PATEK_PROJECT)
 #define MOTOR_STRENGTH			98/*MOTOR_STRENGTH 98 %*/
@@ -202,7 +143,6 @@ int32_t motor_min_strength;
 
 #define __outpdw(port, val) iowrite32(val, port)
 
-
 #define in_dword(addr)              (__inpdw(addr))
 #define in_dword_masked(addr, mask) (__inpdw(addr) & (mask))
 #define out_dword(addr, val)        __outpdw(addr, val)
@@ -294,28 +234,9 @@ static void __iomem *virt_mmss_gp1_base;
 #define __msmhwio_outm(hwiosym, mask, val)  HWIO_##hwiosym##_OUTM(mask, val)
 #define HWIO_OUTM(hwiosym, mask, val)	__msmhwio_outm(hwiosym, mask, val)
 int32_t vibe_pwm_onoff(u8 onoff);
-int32_t vibe_set_pwm_freq(int nForce);
+int32_t vibe_set_pwm_freq(int intensity);
+int vib_config_pwm_device(void);
 #endif
-/* Kernel Debug Macros */
-#ifdef __KERNEL__
-	#ifdef VIBE_DEBUG
-		#define DbgOut(_x_, ...) printk(_x_, ##__VA_ARGS__)
-	#else   /* VIBE_DEBUG */
-		#define DbgOut(_x_)
-	#endif  /* VIBE_DEBUG */
-
-	#if defined(VIBE_RECORD) && defined(VIBE_DEBUG)
-		#define DbgRecorderInit(_x_) _RecorderInit _x_
-		#define DbgRecorderTerminate(_x_) _RecorderTerminate _x_
-		#define DbgRecorderReset(_x_) _RecorderReset _x_
-		#define DbgRecord(_x_) _Record _x_
-	#else /* defined(VIBE_RECORD) && defined(VIBE_DEBUG) */
-		#define DbgRecorderInit(_x_)
-		#define DbgRecorderTerminate(_x_)
-		#define DbgRecorderReset(_x_)
-		#define DbgRecord(_x_)
-	#endif /* defined(VIBE_RECORD) && defined(VIBE_DEBUG) */
-#endif  /* __KERNEL__ */
 
 #if defined(CONFIG_MOTOR_DRV_MAX77803)
 extern void max77803_vibtonz_en(bool en);
@@ -332,4 +253,4 @@ void drv2603_gpio_en(bool);
 static int32_t drv2603_gpio_init(void);
 #endif
 
-#endif  /* _TSPDRV_H */
+#endif  /* _VIBRATOR_H */

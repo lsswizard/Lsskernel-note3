@@ -147,13 +147,7 @@ obj-$(CONFIG_CORESIGHT)		+= coresight/
 obj-$(CONFIG_BIF)		+= bif/
 obj-$(CONFIG_BATTERY_SAMSUNG)   += battery/
 obj-$(CONFIG_SENSORS)		+= sensors/
-obj-$(CONFIG_MOTOR_DRV_ISA1400) += motor/
-obj-$(CONFIG_MOTOR_DRV_DRV2603) += motor/
-obj-$(CONFIG_VIBETONZ)		+= motor/
-obj-$(CONFIG_MSM_VIBRATOR)	+= motor/
-obj-$(CONFIG_HAPTIC_ISA1200)	+=motor/
-obj-$(CONFIG_MAX77826_VIBRATOR)	+= motor/
-obj-$(CONFIG_DRV2604_VIBRATOR)	+=motor/
+obj-y						+=motor/
 
 obj-$(CONFIG_FELICA)		+= felica/
 
