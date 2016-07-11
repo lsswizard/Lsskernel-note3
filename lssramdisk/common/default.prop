@@ -20,9 +20,12 @@ persist.sys.strict_op_enable=false
 persist.sys.whitelist=/system/etc/whitelist_appops.xml
 camera2.portability.force_api=1
 persist.sys.usb.config=mtp,adb
+ro.securestorage.support=false
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #
 ro.bootimage.build.date=Tue Mar 15 00:07:36 KST 2016
 ro.bootimage.build.date.utc=1457968056
 ro.bootimage.build.fingerprint=samsung/hero2ltexx/hero2lte:6.0.1/MMB29K/G935FXXU1APC8:user/test-keys
+ro.config.tima=0
+ro.config.knox=0
