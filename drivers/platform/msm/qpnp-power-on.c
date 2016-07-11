@@ -40,9 +40,7 @@
 	static int check_pkey_press;
 #endif
 
-#ifdef CONFIG_ARCH_MSM8226  //should be removed
 extern struct class *sec_class;
-#endif
 
 /* Common PNP defines */
 #define QPNP_PON_REVISION2(base)		(base + 0x01)
@@ -1276,7 +1274,9 @@ static int __devinit qpnp_pon_config_init(struct qpnp_pon *pon)
 #ifdef CONFIG_MACH_HLTEVZW
 		/* Disable power key reset on HLTE VZW with debug low by request */
 		if (cfg->pon_type == PON_KPDPWR) {
+#ifdef CONFIG_SEC_DEBUG
 			if (0 == sec_debug_is_enabled())
+#endif
 				qpnp_control_s2_reset(pon, cfg, 0);
 		}
 #endif

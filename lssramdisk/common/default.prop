@@ -1,13 +1,12 @@
 #
 # ADDITIONAL_DEFAULT_PROPERTIES
 #
-persist.cne.feature=0
 telephony.lteOnCdmaDevice=0
 rild.libpath=/system/lib/libsec-ril.so
 rild.libpath2=/system/lib/libsec-ril-dsds.so
 persist.security.ams.enforcing=0
 ro.secure=0
-ro.allow.mock.location=1
+ro.allow.mock.location=0
 ro.debuggable=1
 ro.adb.secure=0
 ro.zygote=zygote32
@@ -16,8 +15,6 @@ dalvik.vm.image-dex2oat-Xmx=64m
 dalvik.vm.dex2oat-Xms=64m
 dalvik.vm.dex2oat-Xmx=512m
 ro.dalvik.vm.native.bridge=0
-ro.config.knox=0
-ro.config.tima=0
 debug.atrace.tags.enableflags=0
 persist.sys.strict_op_enable=false
 persist.sys.whitelist=/system/etc/whitelist_appops.xml
