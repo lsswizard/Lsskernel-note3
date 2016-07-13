@@ -109,13 +109,9 @@ static int __init enforcing_setup(char *str)
 {
 	unsigned long enforcing;
 	if (!strict_strtoul(str, 0, &enforcing))
-#if defined(CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE)
-		selinux_enforcing = 1;
-#elif defined(CONFIG_SECURITY_SELINUX_NEVER_ENFORCE)
-		selinux_enforcing = 0;
-#else
+
 		selinux_enforcing = enforcing ? 1 : 0;
-#endif
+
 	return 1;
 }
 __setup("enforcing=", enforcing_setup);
@@ -128,11 +124,8 @@ static int __init selinux_enabled_setup(char *str)
 {
 	unsigned long enabled;
 	if (!strict_strtoul(str, 0, &enabled))
-#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
-		selinux_enabled = 1;
-#else
+
 		selinux_enabled = enabled ? 1 : 0;
-#endif
 	return 1;
 }
 __setup("selinux=", selinux_enabled_setup);
@@ -3158,14 +3151,12 @@ int ioctl_has_perm(const struct cred *cred, struct file *file,
 	u32 ssid = cred_sid(cred);
 	struct selinux_audit_data sad = {0,};
 	int rc;
-	u8 driver = cmd >> 8;
-	u8 xperm = cmd & 0xff;
 
 	COMMON_AUDIT_DATA_INIT(&ad, IOCTL_OP);
 	ad.u.op = &ioctl;
 	ad.u.op->cmd = cmd;
-	ad.selinux_audit_data = &sad;
 	ad.u.op->path = file->f_path;
+	ad.selinux_audit_data = &sad;
 
 	if (ssid != fsec->sid) {
 		rc = avc_has_perm(ssid, fsec->sid,
@@ -3179,8 +3170,8 @@ int ioctl_has_perm(const struct cred *cred, struct file *file,
 	if (unlikely(IS_PRIVATE(inode)))
 		return 0;
 
-	rc = avc_has_extended_perms(ssid, isec->sid, isec->sclass,
-			requested, driver, xperm, &ad);
+	rc = avc_has_operation(ssid, isec->sid, isec->sclass,
+			requested, cmd, &ad);
 out:
 	return rc;
 }
@@ -4748,11 +4739,9 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
 				  "SELinux:  unrecognized netlink message"
 				  " type=%hu for sclass=%hu\n",
 				  nlh->nlmsg_type, sksec->sclass);
-#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
-			if (security_get_allow_unknown())
-#else
+
 			if (!selinux_enforcing || security_get_allow_unknown())
-#endif
+
 				err = 0;
 		}
 
@@ -6064,11 +6053,6 @@ static __init int selinux_init(void)
 
 	if (register_security(&selinux_ops))
 		panic("SELinux: Unable to register with kernel.\n");
-#if defined(CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE)
-	selinux_enforcing = 1;
-#elif defined(CONFIG_SECURITY_SELINUX_NEVER_ENFORCE)
-	selinux_enforcing = 0;
-#endif
 	if (selinux_enforcing)
 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
 	else
@@ -6145,9 +6129,6 @@ static struct nf_hook_ops selinux_ipv6_ops[] = {
 static int __init selinux_nf_ip_init(void)
 {
 	int err = 0;
-#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
-	selinux_enabled = 1;
-#endif
 	if (!selinux_enabled)
 		goto out;
 

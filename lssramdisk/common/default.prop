@@ -20,7 +20,6 @@ persist.sys.strict_op_enable=false
 persist.sys.whitelist=/system/etc/whitelist_appops.xml
 camera2.portability.force_api=1
 persist.sys.usb.config=mtp,adb
-ro.securestorage.support=false
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #

@@ -168,6 +168,9 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
 	mapping->assoc_mapping = NULL;
 	mapping->backing_dev_info = &default_backing_dev_info;
 	mapping->writeback_index = 0;
+#ifdef CONFIG_SDP
+	mapping->userid = 0;
+#endif
 
 	/*
 	 * If the block_device provides a backing_dev_info for client
@@ -407,19 +410,6 @@ static void inode_lru_list_add(struct inode *inode)
 	}
 	spin_unlock(&inode->i_sb->s_inode_lru_lock);
 }
-
-/*
- * Add inode to LRU if needed (inode is unused and clean).
- *
- * Needs inode->i_lock held.
- */
-void inode_add_lru(struct inode *inode)
-{
-	if (!(inode->i_state & (I_DIRTY | I_SYNC | I_FREEING | I_WILL_FREE)) &&
-	    !atomic_read(&inode->i_count) && inode->i_sb->s_flags & MS_ACTIVE)
-		inode_lru_list_add(inode);
-}
-
 
 static void inode_lru_list_del(struct inode *inode)
 {
@@ -1396,7 +1386,8 @@ static void iput_final(struct inode *inode)
 
 	if (!drop && (sb->s_flags & MS_ACTIVE)) {
 		inode->i_state |= I_REFERENCED;
-		inode_add_lru(inode);
+		if (!(inode->i_state & (I_DIRTY|I_SYNC)))
+			inode_lru_list_add(inode);
 		spin_unlock(&inode->i_lock);
 		return;
 	}

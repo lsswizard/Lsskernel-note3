@@ -160,7 +160,6 @@ static struct crypto_alg *crypto_larval_add(const char *name, u32 type,
 		if (crypto_is_larval(alg))
 			alg = crypto_larval_wait(alg);
 	}
-
 	return alg;
 }
 
