@@ -1995,7 +1995,6 @@ static int __init init_sel_fs(void)
 	}
 
 	return err;
-#endif
 }
 
 __initcall(init_sel_fs);
