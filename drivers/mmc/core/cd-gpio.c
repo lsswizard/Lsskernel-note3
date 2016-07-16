@@ -119,6 +119,9 @@ void mmc_cd_gpio_free(struct mmc_host *host)
 	if (!cd || !gpio_is_valid(cd->gpio))
 		return;
 
+	if (!cd)
+		return;
+
 	free_irq(host->hotplug.irq, host);
 	gpio_free(cd->gpio);
 	cd->gpio = -EINVAL;
