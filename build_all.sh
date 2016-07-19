@@ -1,6 +1,6 @@
 #!/bin/bash
 # idleKernel for Samsung Galaxy Note 3 build script by jcadduono
-# This build script is for Note 5 Touchwiz ports only
+# This build script is for Note 3 Marshmallow Touchwiz ports only
 # This build script builds all variants in /ik.ramdisk/variant/
 
 ################### BEFORE STARTING ################
@@ -43,7 +43,7 @@ SET_KERNEL_VERSION()
 {
 	# kernel version string appended to 3.4.x-idleKernel-hlte-
 	# (shown in Settings -> About device)
-	KERNEL_VERSION=$VARIANT-$VER-note5port
+	KERNEL_VERSION=$VARIANT-$VER-mmport
 
 	# output filename of flashable kernel
 	OUT_NAME=lsskernel-hlte-$KERNEL_VERSION
