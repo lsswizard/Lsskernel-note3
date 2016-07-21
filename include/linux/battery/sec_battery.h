@@ -185,9 +185,7 @@ struct sec_battery_info {
 	int eng_not_full_status;
 #if defined(CONFIG_BATTERY_SWELLING)
 	bool swelling_mode;
-	bool swelling_block;
-	unsigned long swelling_block_start;
-	unsigned long swelling_block_passed;
+	bool charging_block;
 	int swelling_full_check_cnt;
 #endif
 };
@@ -291,6 +289,7 @@ enum {
 #endif
 	BATT_STABILITY_TEST,
 	BATT_INBAT_VOLTAGE,
+	BATT_CAPACITY_MAX,
 };
 
 enum {
