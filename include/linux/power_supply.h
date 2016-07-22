@@ -200,6 +200,7 @@ enum power_supply_type {
 	POWER_SUPPLY_TYPE_HV_ERR,			/* Adaptive Charger Err (27) */
 	POWER_SUPPLY_TYPE_HV_UNKNOWN,		/* Adaptive Charger Unknown (28) */
 	POWER_SUPPLY_TYPE_MDOCK_TA,			/* MMdock charger (29) */
+	POWER_SUPPLY_TYPE_MDOCK_USB,		/* MMdock + USB (30) */
 	POWER_SUPPLY_TYPE_MAX,
 };
 
