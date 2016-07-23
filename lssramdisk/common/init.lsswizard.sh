@@ -26,6 +26,9 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# Default MPDecision OFF!
+stop mpdecision
+
 # Init.d
 mount -o remount,rw /system
 if [ ! -d /system/etc/init.d ]; then

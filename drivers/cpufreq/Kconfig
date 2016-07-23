@@ -118,10 +118,10 @@ config CPU_FREQ_DEFAULT_GOV_INTERACTIVE
 	  'interactive' governor for latency-sensitive workloads.
 
 config CPU_FREQ_DEFAULT_GOV_SMARTMAX
-        bool "smartmax"
-        select CPU_FREQ_GOV_SMARTMAX
-        help
-          Use the CPUFreq governor 'smartmax' as default
+    bool "smartmax"
+    select CPU_FREQ_GOV_SMARTMAX
+    help
+      Use the CPUFreq governor 'smartmax' as default
 
 endchoice
 
