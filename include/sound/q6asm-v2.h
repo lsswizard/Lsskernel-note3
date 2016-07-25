@@ -410,6 +410,8 @@ int q6asm_set_lrsm(struct audio_client *ac,int *param);
 int q6asm_set_sa_ep(struct audio_client *ac,int *param);
 int q6asm_get_sa_ep(struct audio_client *ac);
 
+int q6asm_set_msp(struct audio_client *ac, long *param);
+
 /* Send the stream meta data to remove initial and trailing silence */
 int q6asm_stream_send_meta_data(struct audio_client *ac, uint32_t stream_id,
 		uint32_t initial_samples, uint32_t trailing_samples);
