@@ -578,7 +578,12 @@ static void __ref msm_hotplug_resume(struct work_struct *work)
 	}
 
 
-	if (required_wakeup) {
+#ifdef CONFIG_LCD_NOTIFY
+       if (wakeup_boost || required_wakeup) {
+#else
+       if (required_wakeup) {
+#endif
+
 		/* Fire up all CPUs */
 		for_each_cpu_not(cpu, cpu_online_mask) {
 			if (cpu == 0)
