@@ -1,0 +1,146 @@
+#! /system/bin/sh
+sleep 30
+#CPU
+stop mpdecision
+echo 0 > /sys/module/msm_hotplug/msm_enabled
+sleep 3
+echo 1 > /sys/devices/system/cpu/cpu1/online
+echo 1 > /sys/devices/system/cpu/cpu2/online
+echo 1 > /sys/devices/system/cpu/cpu3/online
+
+#CPU Boost Parameters
+echo N > /sys/module/cpu_boost/parameters/cpuboost_enable
+#echo 0 > /sys/module/cpu_boost/parameters/boost_ms
+#echo 0 > /sys/module/cpu_boost/parameters/input_boost_ms
+#echo 0 > /sys/module/cpu_boost/parameters/input_boost_freq
+#echo 0 > /sys/module/cpu_boost/parameters/sync_threshold
+
+
+# Settings Min - Max CPU frequency 
+chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo 300000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
+echo 300000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+echo 300000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
+echo 300000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
+chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+
+# Settings Smartmax as the default Governor 
+chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo smartmax > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+echo smartmax > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+echo smartmax > /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+echo smartmax > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+
+# Smartmax tunables 
+echo 729600 > /sys/devices/system/cpu/cpufreq/smartmax/awake_ideal_freq
+echo 40000 > /sys/devices/system/cpu/cpufreq/smartmax/down_rate
+echo 30 > /sys/devices/system/cpu/cpufreq/smartmax/min_cpu_load
+echo 220000 > /sys/devices/system/cpu/cpufreq/smartmax/ramp_up_step
+echo 230000 > /sys/devices/system/cpu/cpufreq/smartmax/ramp_down_step
+echo 29000 > /sys/devices/system/cpu/cpufreq/smartmax/up_rate
+echo 729600 > /sys/devices/system/cpu/cpufreq/smartmax/suspend_ideal_freq
+echo 75 > /sys/devices/system/cpu/cpufreq/smartmax/max_cpu_load
+echo 162000 > /sys/devices/system/cpu/cpufreq/smartmax/input_boost_duration
+echo 1267200 > /sys/devices/system/cpu/cpufreq/smartmax/touch_poke_freq
+echo 1 > /sys/devices/system/cpu/cpufreq/smartmax/io_is_busy
+echo 1267200 > /sys/devices/system/cpu/cpufreq/smartmax/boost_freq
+echo 36000 > /sys/devices/system/cpu/cpufreq/smartmax/sampling_rate
+
+#Hotpluging
+echo 1 > /sys/module/msm_hotplug/min_cpus_online
+echo 1 > /sys/module/msm_hotplug/msm_enabled
+echo 2 > /sys/module/msm_hotplug/max_cpus_online_susp
+echo 4 > /sys/module/msm_hotplug/max_cpus_online
+echo 2450 > /sys/module/msm_hotplug/boost_lock_duration
+echo 7 > /sys/module/msm_hotplug/history_size
+echo 26 > /sys/module/msm_hotplug/update_rates
+echo 3 > /sys/module/msm_hotplug/cpus_boosted
+echo 1 > /sys/module/msm_hotplug/io_is_busy
+echo 840 > /sys/module/msm_hotplug/down_lock_duration
+echo 85 > /sys/module/msm_hotplug/suspend_defer_time
+
+#Thermal
+#echo 0 > /sys/module/msm_thermal/core_control/enabled
+
+##GPU##
+#Adreno Idler 
+echo Y > /sys/module/adreno_idler/parameters/adreno_idler_active
+echo 13 > /sys/module/adreno_idler/parameters//adreno_idler_downdifferential
+echo 16 > /sys/module/adreno_idler/parameters//adreno_idler_idlewait
+echo 2000 > /sys/module/adreno_idler/parameters//adreno_idler_idleworkload
+
+#Simple GPU Algorithm 
+echo 1 > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
+echo 3 > /sys/module/simple_gpu_algorithm/parameters/simple_laziness
+echo 3000 > /sys/module/simple_gpu_algorithm/parameters/simple_ramp_threshold
+
+# Screen 
+#echo 256 256 256 > /sys/devices/platform/kcal_ctrl.0/kcal
+#echo 255 > /sys/devices/platform/kcal_ctrl.0/kcal_sat
+#echo 255 > /sys/devices/platform/kcal_ctrl.0/kcal_val
+#echo 255 > /sys/devices/platform/kcal_ctrl.0/kcal_cont
+#echo 0 > /sys/devices/platform/kcal_ctrl.0/kcal_hue
+
+#Sound
+#echo 0 > /sys/module/snd_soc_wcd9320/parameters/spkr_drv_wrnd
+#echo 0 > /sys/kernel/sound_control_3/gpl_mic_gain
+#echo 0 255 > /sys/kernel/sound_control_3/gpl_mic_gain
+
+#Power 
+#echo 0 > /sys/kernel/fast_charge/force_fast_charge
+echo 3 > /sys/kernel/power_suspend/power_suspend_mode
+#echo 3 > /sys/devices/fdb00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel
+#echo 1 > /sys/module/msm_pm/modes/cpu0/retention/idle_enabled
+
+#IO scheduler
+echo sio > /sys/block/mmcblk0/queue/scheduler
+
+echo 18000 > /sys/block/mmcblk0/queue/iosched/async_write_expire
+echo 6000 > /sys/block/mmcblk0/queue/iosched/async_read_expire
+echo 12 > /sys/block/mmcblk0/queue/iosched/fifo_batch
+echo 3500 > /sys/block/mmcblk0/queue/iosched/sync_write_expire
+echo 750 > /sys/block/mmcblk0/queue/iosched/sync_read_expire
+
+echo 3072 > /sys/block/mmcblk0/queue/read_ahead_kb
+echo 0 > /sys/block/mmcblk0/queue/iostats
+echo 0 > /sys/block/mmcblk0/queue/add_random
+echo 1 > /sys/block/mmcblk0/queue/rq_affinity
+
+#Virtual memory 
+echo 4608,8192,12288,22528,30208,59392 > /sys/module/lowmemorykiller/parameters/minfree
+echo 3 > /proc/sys/vm/dirty_ratio
+echo 8 > /proc/sys/vm/dirty_background_ratio
+echo 280 > /proc/sys/vm/dirty_expire_centisecs
+echo 375 > /proc/sys/vm/dirty_writeback_centisecs
+echo 62 > /proc/sys/vm/overcommit_ratio
+echo 1 > /proc/sys/vm/laptop_mode
+echo 96 > /proc/sys/vm/vfs_cache_pressure
+echo 70 > /proc/sys/vm/swappiness
+
+#Misc
+#sysctl -w net.ipv4.tcp_congestion_control=westwood
