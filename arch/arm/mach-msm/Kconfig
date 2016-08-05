@@ -2030,7 +2030,7 @@ config SEC_SMART_MGR_RUNQUEUE_AVG
 	help
 	  Support for Smart MGR function.
 
-+config BRICKED_HOTPLUG
+config BRICKED_HOTPLUG
 	bool "Enable kernel based mpdecision"
 	depends on MSM_RUN_QUEUE_STATS
 	default y
