@@ -81,7 +81,7 @@ static unsigned long go_hispeed_load = DEFAULT_GO_HISPEED_LOAD;
 static unsigned int sampling_down_factor;
 
 /* Target load.  Lower values result in higher CPU speeds. */
-#define DEFAULT_TARGET_LOAD 90
+#define DEFAULT_TARGET_LOAD 95
 static unsigned int default_target_loads[] = {DEFAULT_TARGET_LOAD};
 static spinlock_t target_loads_lock;
 static unsigned int *target_loads = default_target_loads;
@@ -90,17 +90,17 @@ static int ntarget_loads = ARRAY_SIZE(default_target_loads);
 /*
  * The minimum amount of time to spend at a frequency before we can ramp down.
  */
-#define DEFAULT_MIN_SAMPLE_TIME (80 * USEC_PER_MSEC)
+#define DEFAULT_MIN_SAMPLE_TIME (40 * USEC_PER_MSEC)
 static unsigned long min_sample_time = DEFAULT_MIN_SAMPLE_TIME;
 
 /*
  * The sample rate of the timer used to increase frequency
  */
-#define DEFAULT_TIMER_RATE (20 * USEC_PER_MSEC)
+#define DEFAULT_TIMER_RATE (10 * USEC_PER_MSEC)
 static unsigned long timer_rate = DEFAULT_TIMER_RATE;
 
 /* Busy SDF parameters*/
-#define MIN_BUSY_TIME (100 * USEC_PER_MSEC)
+#define MIN_BUSY_TIME (50 * USEC_PER_MSEC)
 
 /*
  * Wait this long before raising speed above hispeed, by default a single
@@ -124,11 +124,11 @@ static u64 boostpulse_endtime;
  * Max additional time to wait in idle, beyond timer_rate, at speeds above
  * minimum before wakeup to reduce speed, or -1 if unnecessary.
  */
-#define DEFAULT_TIMER_SLACK (4 * DEFAULT_TIMER_RATE)
+#define DEFAULT_TIMER_SLACK (2 * DEFAULT_TIMER_RATE)
 static int timer_slack_val = DEFAULT_TIMER_SLACK;
 
 #define TOP_STOCK_FREQ 2265600
-#define DEFAULT_SCREEN_OFF_MAX 2265600
+#define DEFAULT_SCREEN_OFF_MAX 96000
 static unsigned long screen_off_max = DEFAULT_SCREEN_OFF_MAX;
 
 static bool io_is_busy;
@@ -200,8 +200,8 @@ static int mode_count = 0;
  * sync_freq
  */
 static unsigned int up_threshold_any_cpu_load = 60;
-static unsigned int sync_freq = 1036800;
-static unsigned int up_threshold_any_cpu_freq = 1728000;
+static unsigned int sync_freq = 960000;
+static unsigned int up_threshold_any_cpu_freq = 1267000;
 
 static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 		unsigned int event);
@@ -214,7 +214,7 @@ static
 struct cpufreq_governor cpufreq_gov_interactive = {
 	.name = "interactive",
 	.governor = cpufreq_governor_interactive,
-	.max_transition_latency = 10000000,
+	.max_transition_latency = 5000000,
 	.owner = THIS_MODULE,
 };
 
@@ -700,7 +700,7 @@ static void cpufreq_interactive_timer(unsigned long data)
 			if (new_freq < hispeed_freq)
 				new_freq = hispeed_freq;
 		}
-		if (new_freq > TOP_STOCK_FREQ && cpu_load < 99)
+		if (new_freq > TOP_STOCK_FREQ && cpu_load < 95)
 			new_freq = TOP_STOCK_FREQ;
 	} else {
 		new_freq = choose_freq(pcpu, loadadjfreq);
@@ -1508,7 +1508,7 @@ define_one_global_rw(boostpulse_duration);
  
          ret = strict_strtoul(buf, 0, &val);
          if (ret < 0) return ret;
-         if (val < 300000) screen_off_max = 2265600;
+         if (val < 300000) screen_off_max = 960000;
          else screen_off_max = val;
          return count;
  }

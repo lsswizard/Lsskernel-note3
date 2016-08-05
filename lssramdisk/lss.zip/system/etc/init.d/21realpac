@@ -3,6 +3,7 @@ sleep 30
 #CPU
 stop mpdecision
 echo 0 > /sys/module/msm_hotplug/msm_enabled
+
 sleep 3
 echo 1 > /sys/devices/system/cpu/cpu1/online
 echo 1 > /sys/devices/system/cpu/cpu2/online
@@ -57,7 +58,7 @@ echo smartmax > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
 chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
 
 # Smartmax tunables 
-echo 729600 > /sys/devices/system/cpu/cpufreq/smartmax/awake_ideal_freq
+echo 960000 > /sys/devices/system/cpu/cpufreq/smartmax/awake_ideal_freq
 echo 40000 > /sys/devices/system/cpu/cpufreq/smartmax/down_rate
 echo 30 > /sys/devices/system/cpu/cpufreq/smartmax/min_cpu_load
 echo 220000 > /sys/devices/system/cpu/cpufreq/smartmax/ramp_up_step
@@ -114,8 +115,40 @@ echo 3000 > /sys/module/simple_gpu_algorithm/parameters/simple_ramp_threshold
 #Power 
 #echo 0 > /sys/kernel/fast_charge/force_fast_charge
 echo 3 > /sys/kernel/power_suspend/power_suspend_mode
+echo 4 > /sys/module/lpm_levels/enable_low_power/l2
 #echo 3 > /sys/devices/fdb00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel
 #echo 1 > /sys/module/msm_pm/modes/cpu0/retention/idle_enabled
+
+CT=0 
+while [ $CT -lt 3 ]; do
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/power_collapse/suspend_enabled
+	((CT++))
+done
+CT=0
+while [ $CT -lt 3 ]; do
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/power_collapse/idle_enabled
+	((CT++))
+done
+CT=0
+while [ $CT -lt 3 ]; do
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/standalone_power_collapse/suspend_enabled
+	((CT++))
+done
+CT=0
+while [ $CT -lt 3 ]; do
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/standalone_power_collapse/idle_enabled
+	((CT++))
+done
+CT=0
+while [ $CT -lt 3 ]; do
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/retention/idle_enabled
+	((CT++))
+done
+CT=0
+while [ $CT -lt 3 ]; do
+	echo 1 > /sys/devices/system/cpu/cpu$CT/online
+	((CT++))
+done
 
 #IO scheduler
 echo sio > /sys/block/mmcblk0/queue/scheduler
@@ -130,6 +163,16 @@ echo 3072 > /sys/block/mmcblk0/queue/read_ahead_kb
 echo 0 > /sys/block/mmcblk0/queue/iostats
 echo 0 > /sys/block/mmcblk0/queue/add_random
 echo 1 > /sys/block/mmcblk0/queue/rq_affinity
+
+if [ -d "/sys/block/mmcblk1" ]; then
+	echo sio > /sys/block/mmcblk1/queue/scheduler
+	echo 18000 > /sys/block/mmcblk1/queue/iosched/async_write_expire
+	echo 6000 > /sys/block/mmcblk1/queue/iosched/async_read_expire
+	echo 12 > /sys/block/mmcblk1/queue/iosched/fifo_batch
+	echo 3500 > /sys/block/mmcblk1/queue/iosched/sync_write_expire
+	echo 750 > /sys/block/mmcblk1/queue/iosched/sync_read_expire
+	echo 3072 > /sys/block/mmcblk1/queue/read_ahead_kb
+fi
 
 #Virtual memory 
 echo 4608,8192,12288,22528,30208,59392 > /sys/module/lowmemorykiller/parameters/minfree
