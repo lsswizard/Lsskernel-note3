@@ -270,4 +270,4 @@ ifdef CONFIG_ARCH_MSM8974
 endif
 
 obj-$(CONFIG_HAS_MACH_MEMUTILS) += memutils/
-
+obj-$(CONFIG_BRICKED_HOTPLUG) += bricked_hotplug.o

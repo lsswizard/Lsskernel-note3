@@ -102,5 +102,11 @@ unsigned long acpuclk_wait_for_irq(void);
  * @data: acpuclock API implementations and data
  */
 void acpuclk_register(struct acpuclk_data *data);
+/**
+* msm_cpufreq_get_freq() - Get a CPU's clock rate in KHz
+* @cpu: CPU to query the rate of
+* @acpuclk_get_rate: is broken into the latest QCOM drivers
+*/
+unsigned int msm_cpufreq_get_freq(unsigned int cpu);
 
 #endif /*__ARCH_ARM_MACH_MSM_ACPUCLOCK_H*/
