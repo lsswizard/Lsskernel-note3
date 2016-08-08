@@ -131,10 +131,6 @@ config CPU_FREQ_DEFAULT_GOV_SMARTMAX
     help
       Use the CPUFreq governor 'smartmax' as default
 
-config CPU_FREQ_DEFAULT_GOV_HYPER
-	bool "hyper"
-	select CPU_FREQ_GOV_HYPER
-
 config CPU_FREQ_DEFAULT_GOV_YANKACTIVE
 	bool "yankactive"
 	select CPU_FREQ_GOV_YANKACTIVE
@@ -269,10 +265,6 @@ config CPU_FREQ_GOV_SMARTMAX
         select CPU_FREQ_TABLE
         help
           'smartmax' combined ondemand and smartass2
-
-config CPU_FREQ_GOV_HYPER
-		tristate "'hyper' cpufreq policy governor"
-		select CPU_FREQ_TABLE
 
 menu "x86 CPU frequency scaling drivers"
 depends on X86
