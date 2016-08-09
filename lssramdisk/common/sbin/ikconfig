@@ -150,6 +150,8 @@ case $option in
 	echo "2) interactive"
 	echo "3) performance"
 	echo "4) smartmax (default)"
+	echo "5) slim"
+	echo "6) yankactive"
 	echo
 	echo -n "enter a number (or press enter to return): "
         read value
@@ -158,6 +160,8 @@ case $option in
 		2) GOV=interactive;;
 		3) GOV=performance;;
 		4) GOV=smartmax;;
+		5) GOV=slim;;
+		6) GOV=yankactive;;
 		*) GOV=;;
         esac
 	if [ -n $GOV ]; then
