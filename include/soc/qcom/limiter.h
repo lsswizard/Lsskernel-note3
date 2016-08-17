@@ -1,5 +1,5 @@
 #define MSM_LIMIT			"msm_limiter"
-#define LIMITER_ENABLED			0
+#define LIMITER_ENABLED			1
 #define DEFAULT_SUSPEND_DEFER_TIME	10 
 #if defined(CONFIG_ARCH_MSM8916)
 #define DEFAULT_SUSPEND_FREQUENCY	998400
@@ -32,6 +32,7 @@ static struct cpu_limit {
 	struct work_struct resume_work;
 	struct mutex resume_suspend_mutex;
 	struct mutex msm_limiter_mutex[4];
+	char *scaling_governor[4];
 	struct notifier_block notif;
 } limit = {
 	.limiter_enabled = LIMITER_ENABLED,

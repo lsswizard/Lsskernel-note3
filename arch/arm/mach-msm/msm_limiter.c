@@ -25,7 +25,7 @@
 #include <soc/qcom/limiter.h>
 
 #define MSM_CPUFREQ_LIMIT_MAJOR		3
-#define MSM_CPUFREQ_LIMIT_MINOR		8
+#define MSM_CPUFREQ_LIMIT_MINOR		7
 
 static unsigned int debug_mask = 0;
 
