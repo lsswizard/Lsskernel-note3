@@ -1,23 +1,9 @@
 #define MSM_LIMIT			"msm_limiter"
-#define LIMITER_ENABLED			1
+#define LIMITER_ENABLED				1
 #define DEFAULT_SUSPEND_DEFER_TIME	10 
-#if defined(CONFIG_ARCH_MSM8916)
-#define DEFAULT_SUSPEND_FREQUENCY	998400
-#else
-#define DEFAULT_SUSPEND_FREQUENCY	1728000
-#endif
-#if defined(CONFIG_ARCH_APQ8084)
-#define DEFAULT_RESUME_FREQUENCY	2649600
-#elif defined(CONFIG_ARCH_MSM8916)
-#define DEFAULT_RESUME_FREQUENCY	1209600
-#else
+#define DEFAULT_SUSPEND_FREQUENCY	729600
 #define DEFAULT_RESUME_FREQUENCY	2457600
-#endif
-#if defined(CONFIG_ARCH_MSM8916)
-#define DEFAULT_MIN_FREQUENCY		200000
-#else
 #define DEFAULT_MIN_FREQUENCY		300000
-#endif
 
 static struct cpu_limit {
 	unsigned int limiter_enabled;
@@ -32,7 +18,7 @@ static struct cpu_limit {
 	struct work_struct resume_work;
 	struct mutex resume_suspend_mutex;
 	struct mutex msm_limiter_mutex[4];
-	char *scaling_governor[4];
+	/*char *scaling_governor[4];*/
 	struct notifier_block notif;
 } limit = {
 	.limiter_enabled = LIMITER_ENABLED,
