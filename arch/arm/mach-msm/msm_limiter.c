@@ -1,11 +1,9 @@
-
 /*
- * MSM CPU Frequency Limiter Driver (C) 2015 Changed Min to 268800 For underclock
+ * MSM CPU Frequency Limiter Driver
  *
  * Copyright (c) 2013-2014, Dorimanx <yuri@bynet.co.il>
  * Copyright (c) 2013-2014, Pranav Vashi <neobuddy89@gmail.com>
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
- * Copyright (C) 2015, Eliminater74 <eliminater74@gmail.com> 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -24,7 +22,9 @@
 #else
 #include <linux/lcd_notify.h>
 #endif
+
 #include <soc/qcom/limiter.h>
+
 #define MSM_CPUFREQ_LIMIT_MAJOR		3
 #define MSM_CPUFREQ_LIMIT_MINOR		8
 
