@@ -407,6 +407,8 @@ extern int queue_delayed_work(struct workqueue_struct *wq,
 			struct delayed_work *work, unsigned long delay);
 extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
 			struct delayed_work *work, unsigned long delay);
+extern bool mod_delayed_work_on(int cpu, struct workqueue_struct *wq,
+			struct delayed_work *dwork, unsigned long delay);
 
 extern void flush_workqueue(struct workqueue_struct *wq);
 extern void drain_workqueue(struct workqueue_struct *wq);
@@ -451,6 +453,22 @@ static inline bool cancel_delayed_work(struct delayed_work *work)
 		work_clear_pending(&work->work);
 	return ret;
 }
+
+/**
+ * mod_delayed_work - modify delay of or queue a delayed work
+ * @wq: workqueue to use
+ * @dwork: work to queue
+ * @delay: number of jiffies to wait before queueing
+ *
+ * mod_delayed_work_on() on local CPU.
+ */
+static inline bool mod_delayed_work(struct workqueue_struct *wq,
+				    struct delayed_work *dwork,
+				    unsigned long delay)
+{
+	return mod_delayed_work_on(WORK_CPU_UNBOUND, wq, dwork, delay);
+}
+
 
 /*
  * Like above, but uses del_timer() instead of del_timer_sync(). This means,
