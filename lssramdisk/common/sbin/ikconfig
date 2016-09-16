@@ -149,8 +149,8 @@ case $option in
 	echo "1) ondemand"
 	echo "2) interactive"
 	echo "3) performance"
-	echo "4) smartmax (default)"
-	echo "5) slim"
+	echo "4) smartmax"
+	echo "5) impulse(default)"
 	echo "6) yankactive"
 	echo
 	echo -n "enter a number (or press enter to return): "
@@ -160,7 +160,7 @@ case $option in
 		2) GOV=interactive;;
 		3) GOV=performance;;
 		4) GOV=smartmax;;
-		5) GOV=slim;;
+		5) GOV=impulse;;
 		6) GOV=yankactive;;
 		*) GOV=;;
         esac

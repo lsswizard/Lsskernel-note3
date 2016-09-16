@@ -26,7 +26,7 @@
 #include <soc/qcom/limiter.h>
 
 #define MSM_CPUFREQ_LIMIT_MAJOR		3
-#define MSM_CPUFREQ_LIMIT_MINOR		8
+#define MSM_CPUFREQ_LIMIT_MINOR		7
 
 static unsigned int debug_mask = 0;
 
@@ -238,7 +238,7 @@ static ssize_t limiter_enabled_store(struct kobject *kobj,
 	if (val == limit.limiter_enabled)
 		return count;
 
-	limit.limiter_enabled = val;
+	limit.limiter_enabled = 0;
 
 	if (limit.limiter_enabled)
 		msm_cpufreq_limit_start();

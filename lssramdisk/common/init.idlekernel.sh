@@ -53,7 +53,7 @@ echo `cat $CFILE` > $SFILE
 #
 CFILE=$DDIR/cpu_governor
 SFILE=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-CDEF=smartmax
+CDEF=impulse
 if [ ! -f $CFILE ]; then
 	echo $CDEF > $CFILE
 fi
@@ -118,6 +118,7 @@ if [ ! -f $CFILE ]; then
 	echo $CDEF > $CFILE
 fi
 echo `cat $CFILE` > $SFILE
+
 
 /sbin/setonboot apply &
 /system/xbin/busybox run-parts /system/etc/init.d &

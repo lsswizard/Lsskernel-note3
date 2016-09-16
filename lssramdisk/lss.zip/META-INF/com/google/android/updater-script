@@ -2,6 +2,7 @@ ui_print("- Flashing Lsskernel Kernel");
 set_progress(0.10);
 
 run_program("/sbin/busybox", "mount", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+run_program("/sbin/busybox", "mount", "/dev/block/platform/msm_sdcc.1/by-name/data", "/data");
 package_extract_dir("system", "/system");
 package_extract_file("boot.img", "/dev/block/platform/msm_sdcc.1/by-name/boot");
 
@@ -237,6 +238,8 @@ set_metadata("/system/fonts/DroidSans-Bold.ttf", "uid", 0, "gid", 0, "mode", 075
 set_metadata("/system/lost+found", "uid", 0, "gid", 0, "mode", 0770, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
 
 unmount("/system");
+delete_recursive("/data/data/idlekernel/");
+unmount("/data");
 ui_print(" ");
 set_progress(1);
 ui_print("- Done, please reboot");

@@ -26,8 +26,57 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Default MPDecision OFF!
+# Settings Min - Max CPU frequency 
+chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo 288000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
+echo 288000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+echo 288000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
+echo 288000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
+chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
+chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
+chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+echo 2265600 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+
+#Adreno Idler 
+echo Y > /sys/module/adreno_idler/parameters/adreno_idler_active
+
+#Simple GPU Algorithm 
+echo 1 > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
+
+#Power 
+echo 3 > /sys/kernel/power_suspend/power_suspend_mode
+
+LS=0 
+while [ $LS -lt 3 ]; do
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/power_collapse/suspend_enabled
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/power_collapse/idle_enabled
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/standalone_power_collapse/suspend_enabled
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/standalone_power_collapse/idle_enabled
+	echo 1 > /sys/module/msm_pm/modes/cpu$CT/retention/idle_enabled
+	echo 1 > /sys/devices/system/cpu/cpu$CT/online
+	((LS++))
+done
+
+# Hotplug
+echo > "1" /sys/kernel/msm_mpdecision/conf/enabled
 stop mpdecision
+echo > "0" /sys/module/msm_hotplug/msm_enabled
+echo N > /sys/module/cpu_boost/parameters/cpuboost_enable
 
 # Init.d
 mount -o remount,rw /system
