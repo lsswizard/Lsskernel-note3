@@ -65,7 +65,7 @@ MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
 
-TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-6.0u
+TOOLCHAIN=/home/lss/Android_kernels/Toolchains/linaro-arm-eabi-6.0u
 
 # amount of cpu threads to use in kernel make process
 THREADS=8
@@ -146,6 +146,7 @@ CREATE_ZIP()
 	zipalign -v 4 $OUT_DIR/$OUT_NAMETEMP.zip $OUT_DIR/$OUT_NAME.zip
 	rm $OUT_DIR/$OUT_NAMETEMP.zip
 	zipinfo -t $OUT_DIR/$OUT_NAME.zip
+	mv $OUT_DIR/$OUT_NAME.zip /home/lss/Android_kernels/Kernels/note3/$OUT_NAME.zip
 	cd $RDIR
 }
 

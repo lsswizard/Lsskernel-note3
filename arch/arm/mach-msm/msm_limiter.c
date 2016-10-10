@@ -238,7 +238,7 @@ static ssize_t limiter_enabled_store(struct kobject *kobj,
 	if (val == limit.limiter_enabled)
 		return count;
 
-	limit.limiter_enabled = 0;
+	limit.limiter_enabled = val;
 
 	if (limit.limiter_enabled)
 		msm_cpufreq_limit_start();
