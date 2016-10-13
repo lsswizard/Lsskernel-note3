@@ -19,3 +19,5 @@ generic-y += sections.h
 generic-y += siginfo.h
 generic-y += simd.h
 generic-y += sizes.h
+generic-y += termios.h
+generic-y += unaligned.h
