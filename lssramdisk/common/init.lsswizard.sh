@@ -26,57 +26,75 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Settings Min - Max CPU frequency 
-chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-echo 288000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
-echo 288000 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
-chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
-chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
-echo 288000 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
-chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
-chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
-echo 288000 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
-chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
-chmod 644 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-echo 2265600 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-chmod 444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-chmod 644 /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
-echo 2265600 > /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
-chmod 444 /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
-chmod 644 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
-echo 2265600 > /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
-chmod 444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
-chmod 644 /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
-echo 2265600 > /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
-chmod 444 /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
+#!/system/bin/sh
 
-#Adreno Idler 
+# selinux fixups
+/system/xbin/supolicy --live "allow mediaserver mediaserver_tmpfs file execute"
+
+#
+# panel temperature setting
+#
+echo 0 > /sys/class/lcd/panel/temperature
+
+# panel color control
+#
+echo 2 > /sys/class/lcd/panel/panel_colors
+
+#
+# screen_off_maxfreq
+#
+echo "1267200" > /sys/devices/system/cpu/cpufreq
+
+#
+# scaling_max_freq
+#
+echo "2265600" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+#
+# cpu governor
+#
+echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+#
+# gpu governor
+#
+echo "msm-adreno-tz" > /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/governor
 echo Y > /sys/module/adreno_idler/parameters/adreno_idler_active
-
-#Simple GPU Algorithm 
 echo 1 > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
+#
 
-#Power 
-echo 3 > /sys/kernel/power_suspend/power_suspend_mode
+# tcp congestion control algorithm
+#
 
-LS=0 
-while [ $LS -lt 3 ]; do
-	echo 1 > /sys/module/msm_pm/modes/cpu$CT/power_collapse/suspend_enabled
-	echo 1 > /sys/module/msm_pm/modes/cpu$CT/power_collapse/idle_enabled
-	echo 1 > /sys/module/msm_pm/modes/cpu$CT/standalone_power_collapse/suspend_enabled
-	echo 1 > /sys/module/msm_pm/modes/cpu$CT/standalone_power_collapse/idle_enabled
-	echo 1 > /sys/module/msm_pm/modes/cpu$CT/retention/idle_enabled
-	echo 1 > /sys/devices/system/cpu/cpu$CT/online
-	((LS++))
-done
+echo "westwood" > /proc/sys/net/ipv4/tcp_congestion_control
 
-# Hotplug
-echo > "1" /sys/kernel/msm_mpdecision/conf/enabled
-stop mpdecision
+#
+# internal memory io scheduler
+#
+echo "cfq" > /sys/block/mmcblk0/queue/scheduler
+
+#
+# external memory io scheduler
+#
+
+echo "cfq" > /sys/block/mmcblk1/queue/scheduler
+
+#
+# mmc crc
+#
+
+echo "Y" > /sys/module/mmc_core/parameters/use_spi_crc
+
 echo > "0" /sys/module/msm_hotplug/msm_enabled
 echo N > /sys/module/cpu_boost/parameters/cpuboost_enable
+
+stop thermal-engine
+sleep 2
+start thermal-engine
+
+stop mpdecision
+sleep 2
+start mpdecision
 
 # Init.d
 mount -o remount,rw /system
