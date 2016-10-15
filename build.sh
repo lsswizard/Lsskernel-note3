@@ -65,7 +65,7 @@ MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
 
-TOOLCHAIN=/home/lss/Android_kernels/Toolchains/linaro-arm-eabi-6.0u
+TOOLCHAIN=/home/lss/Android_kernels/Toolchains/arm-cortex-linux5.2
 
 # amount of cpu threads to use in kernel make process
 THREADS=8
