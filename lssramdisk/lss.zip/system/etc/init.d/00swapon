@@ -1,0 +1,23 @@
+#!/system/bin/sh
+
+Sfile="/data/swapfile"
+
+#Swap file
+if [ -e $Sfile ]; then
+echo Activating swapping...
+swapon $Sfile
+sleep 1
+sync
+fi
+if [ ! -e $Sfile ]; then
+#creating swap file (count = x mb to change size)
+echo "Creating swapfile, please wait..."
+dd if=/dev/zero of=$Sfile bs=1048576 count=768
+mkswap $Sfile
+echo done!
+echo Activating swapping...
+swapon $Sfile
+sleep 1
+sync
+echo done.
+fi

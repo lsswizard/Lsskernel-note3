@@ -51,16 +51,40 @@ echo "1267200" > /sys/devices/system/cpu/cpufreq
 echo "2265600" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 
 #
+# scaling_min_freq
+#
+echo "228000" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+
+#
 # cpu governor
 #
 echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+sleep 1
+sync
+
+#INTERACTIVE BATTRY TWEAKS - Govtunner project code.
+ 
+echo "0 900000:35000 1100000:50000" > /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boost
+echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
+echo "300" > /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+echo "288000" > /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+echo "0" > /sys/devices/system/cpu/cpufreq/interactive/max_freq_hysteresis
+echo "0" > /sys/devices/system/cpu/cpufreq/interactive/align_windows
+echo "80000" > /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+echo "1 288000:39 400000:42 600000:54 700000:57 800000:65 900000:69 1100000:80 1400000:89 1700000:99" > /sys/devices/system/cpu/cpufreq/interactive/target_loads
+echo "60000" > /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+echo "-1" > /sys/devices/system/cpu/cpufreq/interactive/timer_slack
+sleep 1
+sync
 
 #
 # gpu governor
 #
 echo "msm-adreno-tz" > /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/governor
-echo Y > /sys/module/adreno_idler/parameters/adreno_idler_active
-echo 1 > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
+echo "Y" > /sys/module/adreno_idler/parameters/adreno_idler_active
+echo "1" > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
 #
 
 # tcp congestion control algorithm
@@ -85,8 +109,92 @@ echo "cfq" > /sys/block/mmcblk1/queue/scheduler
 
 echo "Y" > /sys/module/mmc_core/parameters/use_spi_crc
 
-echo > "0" /sys/module/msm_hotplug/msm_enabled
-echo N > /sys/module/cpu_boost/parameters/cpuboost_enable
+echo "0" > /sys/module/msm_hotplug/msm_enabled
+echo "N" > /sys/module/cpu_boost/parameters/cpuboost_enable
+
+
+# Ghost's Battery optimizations
+#
+echo "2" > /sys/kernel/power_suspend/power_suspend_mode
+echo "0" > /sys/kernel/fast_charge/force_fast_charge
+echo "1" > /sys/kernel/sched/arch_power
+echo "66" > /proc/sys/vm/swappiness
+echo "1" > /proc/sys/vm/laptop_mode
+sleep 1
+sync
+#
+setprop pm.sleep_mode 1
+setprop ro.ril.disable.power.collapse 0
+setprop persist.sys.use_dithering 0
+setprop wifi.supplicant_scan_interval 180
+setprop power_supply.wakeup enable
+setprop power.saving.mode 1
+setprop ro.config.hw_power_saving 1
+setprop persist.radio.add_power_save 1
+#
+# Kernel panic off
+sysctl -w vm.panic_on_oom=0
+sysctl -w kernel.panic_on_oops=0
+sysctl -w kernel.panic=0
+ 
+#
+# Disable logging
+setprop logcat.live disable
+setprop profiler.force_disable_ulog 1
+setprop debugtool.anrhistory 0
+setprop profiler.debugmonitor false
+setprop profiler.launch false
+setprop profiler.hung.dumpdobugreport false
+setprop persist.sys.strictmode.disable 1
+
+# Dalvik VM debug monitor
+setprop dalvik.vm.debug.alloc 0
+
+# CheckJni disabled
+setprop dalvik.vm.checkjni false
+
+# Disabling different types of system logging
+setprop logcat.live disable
+setprop profiler.force_disable_ulog 1
+setprop debugtool.anrhistory 0
+setprop profiler.debugmonitor false
+setprop profiler.launch false
+setprop profiler.hung.dumpdobugreport false
+setprop persist.sys.strictmode.disable 1
+
+if [ -e /sys/module/lowmemorykiller/parameters/debug_level ]; then
+    chmod 644 /sys/module/lowmemorykiller/parameters/debug_level
+    echo "0" > /sys/module/lowmemorykiller/parameters/debug_level
+fi
+
+for parameter in /sys/module/*
+    do
+    if [ -f $parameter/parameters/debug_mask ]; then
+        chmod 644 $parameter/parameters/debug_mask
+        echo "0" > $parameter/parameters/debug_mask
+    fi
+done
+
+#
+#
+# RIL teweaks
+#
+setprop ro.ril.hsxpa 2
+setprop ro.ril.gprsclass 12
+setprop ro.ril.hep 1
+setprop ro.ril.hsdpa.category 8
+setprop ro.ril.hsupa.category 6
+setprop ro.ril.enable.sdr 1
+setprop ro.ril.enable.gea3 1
+setprop ro.ril.enable.a52 0
+setprop ro.ril.enable.a53 1
+#
+
+# Posible fix
+sync
+sleep 2
+echo "0" > /sys/kernel/dyn_fsync/Dyn_fsync_active
+sync
 
 stop thermal-engine
 sleep 2

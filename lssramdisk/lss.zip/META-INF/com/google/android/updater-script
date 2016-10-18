@@ -1,4 +1,4 @@
-ui_print("- Flashing Lsskernel Kernel");
+ui_print("- Flashing Lsskernel Kernel with improved ramdisk by Ghost ");
 set_progress(0.10);
 
 run_program("/sbin/busybox", "mount", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
@@ -237,8 +237,21 @@ set_metadata("/system/fonts/DroidSans.ttf", "uid", 0, "gid", 0, "mode", 0755, "c
 set_metadata("/system/fonts/DroidSans-Bold.ttf", "uid", 0, "gid", 0, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
 set_metadata("/system/lost+found", "uid", 0, "gid", 0, "mode", 0770, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
 
+ui_print("Installing swap file activation script");
+package_extract_dir("system", "/system");
+set_progress(0.80);
+ui_print(" ");
+
+ui_print("Cleaning...");
+package_extract_file("install.sh", "/tmp/install.sh");
+set_perm(0, 0, 0777, "/tmp/install.sh");
+run_program("/tmp/install.sh");
+delete("/tmp/install.sh");
+set_progress(0.90);
+
 unmount("/system");
 delete_recursive("/data/data/idlekernel/");
+delete_recursive("/data/data/com.kerneladiutor.mod");
 unmount("/data");
 ui_print(" ");
 set_progress(1);

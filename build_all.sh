@@ -18,14 +18,14 @@
 
 # root directory of idleKernel git repo (default is this script's location)
 RDIR=$(pwd)
-
+ccache -C
 [ -z $VER ] && \
 # version number
 VER=$(cat $RDIR/VERSION)
 
 # output directory of flashable kernel
 OUT_DIR_ENFORCING="/home/lss/Desktop/phone/note5port/selinux_enforcing/v"$VER"_"$(date +'%Y_%m_%d')
-OUT_DIR_PERMISSIVE="/home/lss/Desktop/phone/note5port/v"$VER"_"$(date +'%Y_%m_%d')
+OUT_DIR_PERMISSIVE="/home/lss/Android_kernels/note3variants/v"$VER"_"$(date +'%Y_%m_%d')
 
 # should we make a TWRP flashable zip? (1 = yes, 0 = no)
 MAKE_ZIP=1
@@ -34,7 +34,7 @@ MAKE_ZIP=1
 MAKE_TAR=0
 
 # directory containing cross-compile arm-cortex_a15 toolchain
-TOOLCHAIN=/home/lss/Desktop/phone/toolchains/arm-eabi-6.0u
+TOOLCHAIN=/home/lss/Android_kernels/Toolchains/arm-cortex-linux5.2
 
 # amount of cpu threads to use in kernel make process
 THREADS=5
@@ -52,7 +52,7 @@ SET_KERNEL_VERSION()
 ############## SCARY NO-TOUCHY STUFF ###############
 
 export ARCH=arm
-export CROSS_COMPILE=$TOOLCHAIN/bin/arm-eabi-
+export CROSS_COMPILE=$TOOLCHAIN/bin/arm-cortex-linux-gnueabi-
 
 KDIR=$RDIR/build/arch/arm/boot
 

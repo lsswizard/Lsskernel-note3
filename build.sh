@@ -68,12 +68,12 @@ MAKE_TAR=0
 TOOLCHAIN=/home/lss/Android_kernels/Toolchains/arm-cortex-linux5.2
 
 # amount of cpu threads to use in kernel make process
-THREADS=8
+THREADS=4
 
 ############## SCARY NO-TOUCHY STUFF ###############
 
 export ARCH=arm
-export CROSS_COMPILE=$TOOLCHAIN/bin/arm-eabi-
+export CROSS_COMPILE=$TOOLCHAIN/bin/arm-cortex-linux-gnueabi-
 export LOCALVERSION=$KERNEL_VERSION
 
 if ! [ -f $RDIR"/arch/arm/configs/variant_hlte_"$VARIANT ] ; then
@@ -146,7 +146,6 @@ CREATE_ZIP()
 	zipalign -v 4 $OUT_DIR/$OUT_NAMETEMP.zip $OUT_DIR/$OUT_NAME.zip
 	rm $OUT_DIR/$OUT_NAMETEMP.zip
 	zipinfo -t $OUT_DIR/$OUT_NAME.zip
-	mv $OUT_DIR/$OUT_NAME.zip /home/lss/Android_kernels/Kernels/note3/$OUT_NAME.zip
 	cd $RDIR
 }
 
