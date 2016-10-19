@@ -62,9 +62,9 @@ echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 sleep 1
 sync
 
-#INTERACTIVE BATTRY TWEAKS - Govtunner project code.
+#INTERACTIVE BALANCED BATTRY TWEAKS - Govtunner project code.
  
-echo "0 900000:35000 1100000:50000" > /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+echo "0" > /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boost
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boostpulse
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
@@ -73,7 +73,7 @@ echo "288000" > /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/max_freq_hysteresis
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/align_windows
 echo "80000" > /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-echo "1 288000:39 400000:42 600000:54 700000:57 800000:65 900000:69 1100000:80 1400000:89 1700000:99" > /sys/devices/system/cpu/cpufreq/interactive/target_loads
+echo "1 288000:32 400000:34 600000:40 700000:44 800000:49 900000:55 1100000:64 1400000:79 1700000:90 1900000:99" > /sys/devices/system/cpu/cpufreq/interactive/target_loads
 echo "60000" > /sys/devices/system/cpu/cpufreq/interactive/timer_rate
 echo "-1" > /sys/devices/system/cpu/cpufreq/interactive/timer_slack
 sleep 1
@@ -84,7 +84,7 @@ sync
 #
 echo "msm-adreno-tz" > /sys/devices/fdb00000.qcom,kgsl-3d0/devfreq/fdb00000.qcom,kgsl-3d0/governor
 echo "Y" > /sys/module/adreno_idler/parameters/adreno_idler_active
-echo "1" > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
+echo "0" > /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate
 #
 
 # tcp congestion control algorithm
@@ -110,7 +110,7 @@ echo "cfq" > /sys/block/mmcblk1/queue/scheduler
 echo "Y" > /sys/module/mmc_core/parameters/use_spi_crc
 
 echo "0" > /sys/module/msm_hotplug/msm_enabled
-echo "N" > /sys/module/cpu_boost/parameters/cpuboost_enable
+echo "Y" > /sys/module/cpu_boost/parameters/cpuboost_enable
 
 
 # Ghost's Battery optimizations
@@ -120,6 +120,8 @@ echo "0" > /sys/kernel/fast_charge/force_fast_charge
 echo "1" > /sys/kernel/sched/arch_power
 echo "66" > /proc/sys/vm/swappiness
 echo "1" > /proc/sys/vm/laptop_mode
+echo "500" > /proc/sys/vm/dirty_expire_centisecs
+echo "1000" > /proc/sys/vm/dirty_writeback_centisecs
 sleep 1
 sync
 #

@@ -6,3 +6,4 @@ if [ -d /data/data/com.kerneladiutor.mod ];
         rm -rf /data/data/com.kerneladiutor.mod
 fi
 
+chmod 755 /system/bin/lpm
