@@ -152,7 +152,16 @@ config CPU_FREQ_DEFAULT_GOV_IMPULSE
 	select CPU_FREQ_GOV_IMPULSE
 	help
 	  Use the CPUFreq governor 'interactive' as default.
-	  
+
++config CPU_FREQ_DEFAULT_GOV_ARTERACTIVE
+	bool "arteractive"
+	select CPU_FREQ_GOV_ARTERACTIVE
+	help
+	  Use the CPUFreq governor 'arteractive' as default. This allows
+	  you to get a full dynamic cpu frequency capable system by simply
+	  loading your cpufreq low-level hardware driver, using the
+	  'arteractive' governor for latency-sensitive workloads.
+	    
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -292,7 +301,13 @@ config CPU_FREQ_GOV_IMPULSE
 	  designed for optimized balance between power and performance.
  
  	  If in doubt, say N.
- 	  
+
+config CPU_FREQ_GOV_ARTERACTIVE
+	tristate "'arteractive' cpufreq policy governor"
+	help
+	  'arteractive' - This driver adds the interactive governor
+	  from the SM-G900F source drop.
+	  
 menu "x86 CPU frequency scaling drivers"
 depends on X86
 source "drivers/cpufreq/Kconfig.x86"
