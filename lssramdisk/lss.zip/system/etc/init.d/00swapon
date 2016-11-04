@@ -21,3 +21,7 @@ sleep 1
 sync
 echo done.
 fi
+
+# 150% of physical memory for allocations
+busybox sysctl -w vm.overcommit_memory=1
+busybox sysctl -w vm.overcommit_ratio=150

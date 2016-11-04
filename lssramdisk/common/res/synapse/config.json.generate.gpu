@@ -1,0 +1,46 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:GPU,
+    elements:[
+	{ SPane:{
+		title:"GPU Governor"
+	}},
+	{ SOptionList:{
+		title:"Set governor",
+		default:`cat /sys/class/kgsl/kgsl-3d0/devfreq/governor`,
+		action:"generic /sys/class/kgsl/kgsl-3d0/devfreq/governor",
+		values:[msm-adreno-tz, simple_ondemand, performance,]
+	}},
+	{ SPane:{
+		title:"GPU Frequency"
+	}},
+	{ SSeekBar:{
+		title:"Set max frequency",
+		description:"Set the maximum frequency the GPU scales up to.",
+		unit:" Mhz",
+		weight:0.000001,
+		default:`cat /sys/class/kgsl/kgsl-3d0/max_gpuclk`,
+		action:"generic /sys/class/kgsl/kgsl-3d0/max_gpuclk",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies`]
+	}},
+	{ SSeekBar:{
+		title:"Set min frequency",
+		description:"Set the minimum frequency the GPU scales down to.",
+		unit:" Mhz",
+		weight:0.000001,
+		default:`cat /sys/class/kgsl/kgsl-3d0/devfreq/min_freq`,
+		action:"generic /sys/class/kgsl/kgsl-3d0/devfreq/min_freq",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies`]
+	}},
+	{ SPane:{
+		title:""
+	}},
+	{ SLiveLabel:{
+		refresh:2500,
+		action:"show gpu"
+	}},
+    ]
+}
+CTAG

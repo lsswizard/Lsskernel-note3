@@ -1,0 +1,25 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:BATTERY,
+    elements:[
+	{ SLiveLabel:{
+		refresh:2500,
+		action:"show battstatus"
+	}},
+	{ SLiveLabel:{
+		refresh:2500,
+		action:"show battcapa"
+	}},
+	{ SLiveLabel:{
+		refresh:2500,
+		action:"show batttemp"
+	}},
+	{ SLiveLabel:{
+		refresh:9000,
+		action:"show batthealth"
+	}},
+    ]
+}
+CTAG

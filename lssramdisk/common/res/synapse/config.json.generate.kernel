@@ -1,0 +1,98 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:I/O - VM,
+    elements:[
+    { SPane:{
+		title:"I/O Schedulers",
+		description:"Set the active I/O elevator algorithm. The scheduler decides how to handle I/O requests and how to handle them."
+    }},
+	{ SOptionList:{
+		title:"Internal_storage scheduler",
+		default:`cat /sys/block/mmcblk0/queue/scheduler | busybox awk 'NR>1{print $1}' RS=[ FS=]`,
+		action:"scheduler /sys/block/mmcblk0/queue/scheduler",
+		values:[`while read values; do busybox printf "%s, \n" $values | busybox tr -d '[]'; done < /sys/block/mmcblk0/queue/scheduler`]
+	}},
+	{ SSeekBar:{
+		title:"Internal_storage read-ahead",
+		max:2048,
+		min:128,
+		unit:" kB",
+		step:128,
+		default:`cat /sys/block/mmcblk0/queue/read_ahead_kb`,
+		action:"generic /sys/block/mmcblk0/queue/read_ahead_kb"
+	}},
+	{ SOptionList:{
+		title:"ExternalSD scheduler",
+		default:`cat /sys/block/mmcblk1/queue/scheduler | busybox awk 'NR>1{print $1}' RS=[ FS=]`,
+		action:"scheduler /sys/block/mmcblk1/queue/scheduler",
+		values:[`while read values; do busybox printf "%s, \n" $values | busybox tr -d '[]'; done < /sys/block/mmcblk1/queue/scheduler`]
+	}},
+	{ SSeekBar:{
+		title:"ExternalSD  read-ahead",
+		max:2048,
+		min:128,
+		unit:" kB",
+		step:128,
+		default:`cat /sys/block/mmcblk1/queue/read_ahead_kb`,
+		action:"generic /sys/block/mmcblk1/queue/read_ahead_kb"
+	}},
+	{ SPane:{
+		title:"Battery Tweak"
+	}},
+	{ SSeekBar:{
+		title:"Set dirty_expire_centisecs.",
+		description:" Default is 200.",
+		max:2000,
+		min:100,
+		step:100,
+		default:`cat /proc/sys/vm/dirty_expire_centisecs`,
+		action:"generic /proc/sys/vm/dirty_expire_centisecs",
+	}},
+	{ SSeekBar:{
+		title:"Set dirty_writeback_centisecs.",
+		description:" Default is 500.",
+		max:3000,
+		min:100,
+		step:100,
+		default:`cat /proc/sys/vm/dirty_writeback_centisecs`,
+		action:"generic /proc/sys/vm/dirty_writeback_centisecs",
+	}},
+	{ SPane:{
+		title:"Virtual Machine Swappiness",
+	}},
+	{ SSeekBar:{
+		title:"Set swappiness.",
+		description:" Default is 60. A low value means the kernel will try to avoid swapping as much as possible where a higher value instead will make the kernel aggressively try to use swap space.",
+		max:100,
+		min:0,
+		step:10,
+		default:`cat /proc/sys/vm/swappiness`,
+		action:"generic /proc/sys/vm/swappiness",
+	}},
+	{ SPane:{
+		title:"Dirty_Ratio Tweak"
+	}},
+    { SSeekBar:{
+        title:"Dirty Background ",
+        description:" Default is 5%. Dirty background memory buffer, more you set, more memory will be used for write buffer for background operations, buffer is released on need to free RAM.",
+        min:0, max:100, 
+		unit:"%", 
+		step:5,
+        default:`cat /proc/sys/vm/dirty_background_ratio`,
+        action:"generic /proc/sys/vm/dirty_background_ratio"
+    }},
+    { SSeekBar:{
+        title:"Dirty real time",
+        description:" Default is 20%. Dirty real time memory buffer, more you set, more memory will be used for write buffer for real time operations, buffer is released on need to free RAM",
+        min:0, 
+		max:100, 
+		unit:"%", 
+		step:5,
+        default:`cat /proc/sys/vm/dirty_ratio`,
+        action:"generic /proc/sys/vm/dirty_ratio"
+    }},
+    ]
+}
+CTAG

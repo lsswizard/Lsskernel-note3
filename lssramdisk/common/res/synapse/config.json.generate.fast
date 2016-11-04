@@ -1,0 +1,49 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:FAST CHARGE,
+    elements:[
+	{ SPane:{
+		title:"Enable/Disable FastCharge"
+	}},
+	{ SOptionList:{
+		default:`echo $(/res/synapse/actions/fast fastcharge)`,
+		action:"fast fastcharge",
+		values:[Disabled, Enabled_FastCharge, Enabled_FastCharge_with_Custom_Levels,]
+	}},
+	{ SPane:{
+		title:"Custom_Levels settings",
+		description:"Only possible when FastCharge Custom_Levels is selected"
+	}},
+	{ SOptionList:{
+		title:"Set AC Custom Charge Level - default is 1800",
+		default:`cat /sys/kernel/fast_charge//ac_charge_level`,
+		action:"generic /sys/kernel/fast_charge/ac_charge_level",
+		values:[2100, 2000, 1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100, 1000,]
+	}},
+	{ SOptionList:{
+		title:"Set USB Custom Charge Level - default is 460",
+		default:`cat /sys/kernel/fast_charge//usb_charge_level`,
+		action:"generic /sys/kernel/fast_charge/usb_charge_level",
+		values:[1000, 900, 800, 700, 600, 500, 460,]
+	}},
+	{ SPane:{
+		title:"FAILSAVE - DISABLE AT OWN RISK",
+		description:"If disabled you allow anything up to 2.1A/h to be used as AC / USB custom current"
+	}},
+	{ SCheckBox:{
+		label:"Un-check to disable - ON YOUR OWN RISK",
+		default:`cat /sys/kernel/fast_charge/failsafe`,
+		action:"generic /sys/kernel/fast_charge/failsafe"
+	}},
+	{ SPane:{
+		title:""
+	}},
+	{ SButton:{
+		label:"Fast Charge Info",
+		action:"show fast"
+	}},
+    ]
+}
+CTAG

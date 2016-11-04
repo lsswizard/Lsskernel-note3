@@ -1,0 +1,54 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:SOUND,
+    elements:[
+	{ SPane:{
+		title:"Digital output"
+	}},
+	{ SSeekBar:{
+		title:"Set headphone volume",
+		max:10,
+		min:-20,
+		step:1,
+		default:`echo $(/res/synapse/actions/output /sys/kernel/sound_control_3/gpl_headphone_gain)`,
+		action:"output /sys/kernel/sound_control_3/gpl_headphone_gain"
+	}},
+	{ SSeekBar:{
+		title:"Set speaker volume",
+		max:10,
+		min:-20,
+		step:1,
+		default:`echo $(/res/synapse/actions/output /sys/kernel/sound_control_3/gpl_speaker_gain)`,
+		action:"output /sys/kernel/sound_control_3/gpl_speaker_gain"
+	}},
+	{ SPane:{
+		title:"Digital input"
+	}},
+	{ SSeekBar:{
+		title:"Adjust microphone volume",
+		max:10,
+		min:-20,
+		step:1,
+		default:`echo $(/res/synapse/actions/input /sys/kernel/sound_control_3/gpl_mic_gain)`,
+		action:"input /sys/kernel/sound_control_3/gpl_mic_gain"
+	}},
+	{ SSeekBar:{
+		title:"Adjust camera microphone volume",
+		max:10,
+		min:-20,
+		step:1,
+		default:`echo $(/res/synapse/actions/input /sys/kernel/sound_control_3/gpl_cam_mic_gain)`,
+		action:"input /sys/kernel/sound_control_3/gpl_cam_mic_gain"
+	}},
+	{ SPane:{
+		title:""
+	}},
+	{ SButton:{
+		label:"Faux Sound Version",
+		action:"show sound"
+	}},
+    ]
+}
+CTAG

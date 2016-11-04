@@ -1669,3 +1669,9 @@ on property:service.vpnclientd.enable=1
 	start vpnclientd
 on property:service.vpnclientd.enable=0
 	stop vpnclientd
+
+# Call Post-init script
+service Post-init /sbin/custom.sh
+    class main
+    user root
+oneshot

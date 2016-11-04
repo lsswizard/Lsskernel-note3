@@ -1,0 +1,45 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:DRIVERS,
+    elements:[
+	{ SPane:{
+		title:"Dynamic FSYNC",
+		description:"While screen is on file sync is disabled, when screen is off a file sync is called to flush all outstanding writes and restore file sync operation as normal."
+	}},
+	{ SCheckBox:{
+		label:"Enable dynamic fsync",
+		default:`cat /sys/kernel/dyn_fsync/Dyn_fsync_active`,
+		action:"generic /sys/kernel/dyn_fsync/Dyn_fsync_active"
+	}},
+	{ SPane:{
+		title:"Powersuspend",
+		description:"Powersuspend driver is a replacement for the early_suspend/late_resume driver."
+	}},
+	{ SCheckBox:{
+		label:"Enable PowerSuspend",
+		default:`cat /sys/kernel/power_suspend/power_suspend_mode`,
+		action:"generic /sys/kernel/power_suspend/power_suspend_mode"
+	}},
+	{ SPane:{
+		title:"Arch Power",
+		description:"Enable Arch Specific Power Function/Savings."
+	}},
+	{ SCheckBox:{
+		label:"Enable Arch Power",
+		default:`cat /sys/kernel/sched/arch_power`,
+		action:"generic /sys/kernel/sched/arch_power"
+	}},
+	{ SPane:{
+		title:"Gentle Fair Sleepers",
+		description:"Only give sleepers 50% of there service deficit, leave this disabled to save a little battery power."
+	}},
+	{ SCheckBox:{
+		label:"Enable Gentle Fair Sleepers",	
+		default:`cat /sys/kernel/sched/gentle_fair_sleepers`,
+		action:"generic /sys/kernel/sched/gentle_fair_sleepers"
+	}},
+    ]
+}
+CTAG

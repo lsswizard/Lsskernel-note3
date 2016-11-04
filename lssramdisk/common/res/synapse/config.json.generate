@@ -1,0 +1,22 @@
+#!/system/bin/sh
+
+cat << CTAG
+
+{
+    sections: [
+		`. /res/synapse/config.json.generate.cpu`
+		`. /res/synapse/config.json.generate.therm`
+		`. /res/synapse/config.json.generate.driver`
+		`. /res/synapse/config.json.generate.gpu`
+		`. /res/synapse/config.json.generate.kernel`
+		`. /res/synapse/config.json.generate.fast`
+		`. /res/synapse/config.json.generate.battery`
+		`. /res/synapse/config.json.generate.sound`
+		`. /res/synapse/config.json.generate.led`
+		`. /res/synapse/config.json.generate.screen`
+		`. /res/synapse/config.json.generate.wifi`
+		`. /res/synapse/config.json.generate.info`
+    ]
+}
+
+CTAG
