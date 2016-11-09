@@ -1,0 +1,14 @@
+
+if [[ ! -z $1 ]]; then
+	if [ "$1" == "1" ]; then
+		start mpdecision
+	elif [ "$1" == "0" ]; then
+		stop mpdecision
+	fi
+fi
+
+if [ "`ps | grep mpdecision | grep \<`" ]; then
+	echo 1
+else
+	echo 0
+fi
