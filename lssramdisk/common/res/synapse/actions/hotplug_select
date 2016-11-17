@@ -1,0 +1,100 @@
+BB=/sbin/busybox;
+
+if [[ ! -z $2 ]]; then
+	$BB echo $2 > $1;
+	if [  $2 == "Stock" ] &&
+		[ -e /system/bin/mpdecision ]; then
+			stop mpdecision;
+			$BB sleep 1;
+			echo "0" > /sys/module/msm_hotplug/msm_enabled;
+			if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
+				echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+			fi
+			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			echo "0" > /sys/kernel/zen_decision/enabled;
+
+			$BB sleep 1;
+			start mpdecision --avg_comp;
+	elif [  $2 == "MSM_Hotplug" ]; then
+			stop mpdecision;
+			echo "0" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+			if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
+				echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+			fi
+			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			echo "0" > /sys/kernel/zen_decision/enabled;
+			$BB sleep 1;
+			echo "1" > /sys/module/msm_hotplug/msm_enabled;
+	elif [  $2 == "Intelli_Hotplug" ]; then
+			stop mpdecision;
+			echo "0" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+			echo "0" > /sys/module/msm_hotplug/msm_enabled;
+			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			echo "0" > /sys/kernel/zen_decision/enabled;
+			$BB sleep 1;
+			echo "1" > /sys/kernel/intelli_plug/intelli_plug_active;
+	elif [  $2 == "Bricked_Hotplug" ] && [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+			stop mpdecision;
+			echo "0" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+			echo "0" > /sys/module/msm_hotplug/msm_enabled;
+			if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
+				echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+			fi
+			echo "0" > /sys/kernel/zen_decision/enabled;
+			$BB sleep 1;
+			echo "1" > /sys/kernel/msm_mpdecision/conf/enabled;
+	elif [  $2 == "Zen_Decision" ]; then
+			stop mpdecision;
+			echo "0" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+			echo "0" > /sys/module/msm_hotplug/msm_enabled;
+			if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
+				echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+			fi
+			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			$BB sleep 1;
+			echo "1" > /sys/kernel/zen_decision/enabled;
+	else
+			echo "0" > /sys/module/msm_hotplug/msm_enabled;
+			if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
+				echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+			fi
+			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			echo "0" > /sys/kernel/zen_decision/enabled;
+			$BB sleep 1;
+			echo "1" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+
+	fi
+fi
+
+if [ "`ps | $BB grep mpdecision`" ] && [ $(expr `cat /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable`) -eq "1" ]; then
+	echo "Stock"
+elif [ -e /sys/kernel/intelli_plug/intelli_plug_active ] && [ $(expr `cat /sys/kernel/intelli_plug/intelli_plug_active`) -eq "1" ]; then
+	echo "Intelli_Hotplug"
+elif [ -e /sys/kernel/msm_mpdecision/conf/enabled ] && [ $(expr `cat /sys/kernel/msm_mpdecision/conf/enabled`) -eq "1" ]; then
+	echo "Bricked_Hotplug"
+elif [ -e /sys/kernel/zen_decision/enabled ] && [ $(expr `cat /sys/kernel/zen_decision/enabled`) -eq "1" ]; then
+	echo "Zen_Decision"
+elif [ $(expr `cat /sys/module/msm_hotplug/msm_enabled`) -eq "1" ]; then
+	echo "MSM_Hotplug"
+else
+	if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
+		echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+	fi
+	if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+		echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+	fi
+	echo "0" > /sys/module/msm_hotplug/msm_enabled;
+	echo "0" > /sys/kernel/zen_decision/enabled;
+	echo "1" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+	echo "Stock"
+fi

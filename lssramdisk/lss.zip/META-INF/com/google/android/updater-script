@@ -39,6 +39,7 @@ delete_recursive("/system/app/Synapse");
 delete_recursive("/system/app/com.af.synapse-1");
 delete("/system/app/com.af.synapse-1.apk");
 delete("/data/app/Synapse.apk");
+delete_recursive("/data/.lsskernel");
 delete_recursive("/data/app/Synapse");
 delete_recursive("/data/app/com.af.synapse-1");
 delete_recursive("/data/app/com.af.synapse-2");

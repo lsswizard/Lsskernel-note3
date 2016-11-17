@@ -1,0 +1,25 @@
+
+if [[ ! -z $2 ]]; then
+	if [ -e /sys/module/msm_hotplug/$1 ]; then
+		echo $2 > /sys/module/msm_hotplug/$1 2> /dev/null;
+	fi
+	if [ -e /sys/kernel/intelli_plug/$1 ]; then
+		echo $2 > /sys/kernel/intelli_plug/$1 2> /dev/null;
+	fi
+	if [ -e /sys/kernel/msm_mpdecision/conf/$1 ]; then
+		echo $2 > /sys/kernel/msm_mpdecision/conf/$1 2> /dev/null;
+	fi
+fi
+
+if [ -e /sys/module/msm_hotplug/$1 ] &&
+	[ $(expr `cat /sys/module/msm_hotplug/msm_enabled`) -eq "1" ]; then
+	echo `cat /sys/module/msm_hotplug/$1`
+elif [ -e /sys/kernel/intelli_plug/$1 ] &&
+	[ $(expr `cat /sys/kernel/intelli_plug/intelli_plug_active`) -eq "1" ]; then
+	echo `cat /sys/kernel/intelli_plug/$1`
+elif [ -e /sys/kernel/msm_mpdecision/conf/$1 ] &&
+	[ $(expr `cat /sys/kernel/msm_mpdecision/conf/enabled`) -eq "1" ]; then
+	echo `cat /sys/kernel/msm_mpdecision/conf/$1`
+else
+	echo `cat /sys/module/msm_hotplug/$1`
+fi

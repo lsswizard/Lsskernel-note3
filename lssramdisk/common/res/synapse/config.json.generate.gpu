@@ -1,5 +1,5 @@
 #!/system/bin/sh
-
+IDLELOC='/sys/module/adreno_idler/parameters';
 cat << CTAG
 {
     name:GPU,
@@ -41,6 +41,33 @@ cat << CTAG
 		refresh:2500,
 		action:"show gpu"
 	}},
-    ]
+	{ SPane:{
+		title:"Simple GPU Algorithm"
+	}},
+	{ SCheckBox:{
+		label:"Enable simple_gpu_algorithm",
+		description:" Open source user configurable simple GPU Control Algorithm used to replace the closed sourced Qualcomm TrustZone GPU controller.",
+		default:`cat /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate`,
+		action:"generic /sys/module/simple_gpu_algorithm/parameters/simple_gpu_activate"
+     }},
+	{ SSeekBar:{
+		title:"Laziness (Simple Governor)",
+		description:" Higher = more performance, Lower = more battery. Default is 3.",
+		max:10, 
+		min:0,
+		step:1,
+		default:`cat /sys/module/simple_gpu_algorithm/parameters/simple_laziness`,
+		action:"generic /sys/module/simple_gpu_algorithm/parameters/simple_laziness"
+	}},
+	{ SSeekBar:{
+		title:"Ramp Threshold (Simple Governor)",
+		description:" Lower = better performance, Higher = more battery. Default is 6000.",
+		max:10000, 
+		min:1000,
+		step:1000,
+		default:`cat /sys/module/simple_gpu_algorithm/parameters/simple_ramp_threshold`,
+		action:"generic /sys/module/simple_gpu_algorithm/parameters/simple_ramp_threshold"
+	}},
+	]
 }
 CTAG

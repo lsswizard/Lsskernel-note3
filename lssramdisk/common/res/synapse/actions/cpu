@@ -1,0 +1,18 @@
+BB=/sbin/busybox;
+P=/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq;
+PP=/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq;
+PPP=/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor;
+
+$BB chmod 644 $P;
+$BB chmod 644 $PP;
+$BB chmod 644 $PPP;
+
+if [[ ! -z $2 ]]; then
+	echo "$2" > "$1"
+fi
+
+$BB echo "$(cat "$1")"
+
+$BB chmod 444 $P;
+$BB chmod 444 $PP;
+$BB chmod 444 $PPP;

@@ -271,4 +271,4 @@ endif
 
 obj-$(CONFIG_HAS_MACH_MEMUTILS) += memutils/
 obj-$(CONFIG_BRICKED_HOTPLUG) += bricked_hotplug.o
-obj-$(CONFIG_MSM_LIMITER) += msm_limiter.o
+obj-$(CONFIG_ZEN_DECISION) += msm_zen_decision.o

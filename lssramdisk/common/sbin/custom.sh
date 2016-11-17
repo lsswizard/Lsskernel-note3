@@ -7,10 +7,17 @@ busybox ln -fs /res/synapse/uci /sbin/uci
 /sbin/uci
 busybox mount -t rootfs -o remount,ro rootfs
 
+# Make internal storage directory for synapse hotplug profile
+if [ ! -d /data/.lsskernel ]; then
+	mkdir /data/.lsskernel
+	cp -f /res/synapse/lss/hotplug_prof /data/.lsskernel/hotplug_prof
+	chmod 644 /data/.lsskernel/hotplug_prof
+fi
+
 # kernel custom test
 
 if [ -e /data/Kerneltest.log ]; then
-rm /data/Kerneltest.log
+	rm /data/Kerneltest.log
 fi
 
 echo  Kernel script is working !!! >> /data/Kerneltest.log
