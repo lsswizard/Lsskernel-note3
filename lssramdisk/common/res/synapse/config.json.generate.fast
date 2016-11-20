@@ -14,7 +14,7 @@ cat << CTAG
 	}},
 	{ SPane:{
 		title:"Custom_Levels settings",
-		description:"Only possible when FastCharge Custom_Levels is selected"
+		description:" Only possible when FastCharge Custom_Levels is selected"
 	}},
 	{ SOptionList:{
 		title:"Set AC Custom Charge Level - default is 1800",
@@ -28,9 +28,15 @@ cat << CTAG
 		action:"generic /sys/kernel/fast_charge/usb_charge_level",
 		values:[1000, 900, 800, 700, 600, 500, 460,]
 	}},
+	{ SOptionList:{
+		title:"Set Wireless Custom Charge Level - default is 650",
+		default:`cat /sys/kernel/fast_charge/wireless_charge_level`,
+		action:"generic /sys/kernel/fast_charge/wireless_charge_level",
+		values:[1200, 1100, 1000, 900, 800, 650,]
+	}},
 	{ SPane:{
 		title:"FAILSAVE - DISABLE AT OWN RISK",
-		description:"If disabled you allow anything up to 2.1A/h to be used as AC / USB custom current"
+		description:" If disabled you allow anything up to 2.1A/h to be used as AC / USB custom current"
 	}},
 	{ SCheckBox:{
 		label:"Un-check to disable - ON YOUR OWN RISK",
@@ -43,6 +49,25 @@ cat << CTAG
 	{ SButton:{
 		label:"Fast Charge Info",
 		action:"show fast"
+	}},
+	{ SPane:{
+		title:"Battery Info"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show battstatus"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show battcapa"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show batttemp"
+	}},
+	{ SLiveLabel:{
+		refresh:9000,
+		action:"show batthealth"
 	}},
     ]
 }

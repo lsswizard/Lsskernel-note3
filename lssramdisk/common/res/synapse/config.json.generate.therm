@@ -1,0 +1,37 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:THERMAL,
+    elements:[
+	{ SPane:{
+		title:"Intelli Thermal Control - USE AT OWN RISK",
+	}},
+	{ SCheckBox:{
+		label:"Enable or Disable Intelli Thermal Control",
+		default:`echo $(/res/synapse/actions/thermal enabled)`,
+		action:"thermal enabled"
+		}},
+	{ SSeekBar:{
+		title:"Frequency limit temperature",
+		description:" Default is 80°C.",
+		max:100,
+		min:50,
+		unit:"°C",
+		step:1,
+		default:`cat /sys/module/msm_thermal/parameters/limit_temp_degC`,
+		action:"generic /sys/module/msm_thermal/parameters/limit_temp_degC"
+	}},
+	{ SSeekBar:{
+		title:"Core limit temperature",
+		description:" Default is 85°C.",
+		max:100,
+		min:50,
+		unit:"°C",
+		step:1,
+		default:`cat /sys/module/msm_thermal/parameters/core_limit_temp_degC`,
+		action:"generic /sys/module/msm_thermal/parameters/core_limit_temp_degC",
+	}},
+    ]
+}
+CTAG
