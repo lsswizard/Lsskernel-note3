@@ -125,34 +125,6 @@ cat << CTAG
 		},
 		exclude: [ "cpufreq_limit", "ondemand-sec", "iks-cpufreq" ]
 	}},
-	{ SSpacer:{
-		height:1
-	}},
-	{ SPane:{
-		title:"CPU Voltage Control",
-		description:"Too low voltage may cause instability and freezes."
-	}},
-	{ SSeekBar:{
-		title:"Set Global Under-Voltage",
-		description:"Minimum undervolting is -40mV. WARNING: Too low voltage may cause instability issues!",
-		max:0,
-		min:-40,
-		unit:" mV",
-		step:5,
-		default:`echo $(/res/synapse/actions/default vread)`,
-		action:"default vwrite"
-	}},
-	{ SPane:{
-		title:"Voltage Info",
-	}},
-	{ SButton:{
-		label:"Show Voltage Table",
-		action:"show cpu"
-	}},
-	{ SButton:{
-		label:"Show Voltage soc_pvs",
-		action:"show speedbin"
-	}},
     ]
 }
 CTAG

@@ -5,6 +5,7 @@ cat << CTAG
 {
     sections: [
 		`. /res/synapse/config.json.generate.cpu`
+		`. /res/synapse/config.json.generate.voltage`
 		`. /res/synapse/config.json.generate.hotplug`
 		`. /res/synapse/config.json.generate.therm`
 		`. /res/synapse/config.json.generate.driver`

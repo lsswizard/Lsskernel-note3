@@ -1,0 +1,70 @@
+#!/system/bin/sh
+BB=/sbin/busybox;
+
+cat << CTAG
+{
+    name:CPU VOLTAGE,
+    elements:[
+	{ SPane:{
+		title:"CPU Voltage Control",
+		description:" Too low voltage may cause instability, freezes and battery drain."
+	}},
+	`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table" ]; then
+				$BB echo '{ STitleBar:{
+					title:"CPU Global Voltage"
+				}},
+					{ SSeekBar:{
+						default:0,
+						action:"voltage cpuvoltglobal global",
+						unit:" mV",
+						min:-100,
+						max:100,
+						step:5,
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, APPLY ],
+								to:['
+									while read CPUFREQ VOLT UNIT; do
+										$BB echo '"voltage cpuvolt '$CPUFREQ'",';
+									done < /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table;
+								$BB echo ']
+							}
+						]
+					}},'
+			fi`
+	`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table" ]; then				
+		echo '{ SPane:{
+			title:"Separate Frequency Voltage",
+			description:" Decreasing voltages will lower heat and power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltages may cause instability and freezes."
+		}},'
+			while read CPUFREQ VOLT UNIT; do
+				echo '{ SSeekBar:{
+					title:"'${CPUFREQ//mhz\:/}' MHz",
+					unit:"' ${UNIT}'",
+					min:600,
+					max:1800,
+					step:5,
+					default:'$VOLT',
+					action:"voltage cpuvolt '${CPUFREQ}'"
+				}},
+				';
+					done < /sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table;
+	fi`
+	{ SPane:{
+		title:"Voltage Info",
+	}},
+	{ SButton:{
+		label:"Show Voltage Table",
+		action:"show cpu"
+	}},
+{ SPane:{
+		title:"CPU Binning",
+	}},
+	{ SButton:{
+		label:"Show pvsX",
+		action:"show pvs"
+	}},
+	]
+}
+CTAG
