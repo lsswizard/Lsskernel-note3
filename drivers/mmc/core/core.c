@@ -78,7 +78,7 @@ static struct workqueue_struct *workqueue;
  * So we allow it it to be disabled.
  */
 bool use_spi_crc = 1;
-module_param(use_spi_crc, bool, 0664);
+module_param(use_spi_crc, bool, 0644);
 
 /*
  * We normally treat cards as removed during suspend if they are not
@@ -2903,8 +2903,7 @@ out:
 	return;
 }
 
-static bool mmc_is_vaild_state_for_clk_scaling(struct mmc_host *host,
-				enum mmc_load state)
+static bool mmc_is_vaild_state_for_clk_scaling(struct mmc_host *host)
 {
 	struct mmc_card *card = host->card;
 	u32 status;
@@ -2917,8 +2916,7 @@ static bool mmc_is_vaild_state_for_clk_scaling(struct mmc_host *host,
 	 */
 	if (!card || (mmc_card_mmc(card) &&
 			card->part_curr == EXT_CSD_PART_CONFIG_ACC_RPMB)
-			|| (state != MMC_LOAD_LOW &&
-				host->clk_scaling.invalid_state))
+			|| host->clk_scaling.invalid_state)
 		goto out;
 
 	if (mmc_send_status(card, &status)) {
@@ -2949,7 +2947,7 @@ static int mmc_clk_update_freq(struct mmc_host *host,
 	}
 
 	if (freq != host->clk_scaling.curr_freq) {
-		if (!mmc_is_vaild_state_for_clk_scaling(host, state)) {
+		if (!mmc_is_vaild_state_for_clk_scaling(host)) {
 			err = -EAGAIN;
 			goto error;
 		}
@@ -3286,6 +3284,12 @@ void mmc_rescan(struct work_struct *work)
 		extend_wakelock = 1;
 
 
+	/* If the card was removed the bus will be marked
+	 * as dead - extend the wakelock so userspace
+	 * can respond */
+	if (host->bus_dead)
+		extend_wakelock = 1;
+
 	/*
 	 * Let mmc_bus_put() free the bus/bus_ops if we've found that
 	 * the card is no longer present.
@@ -3346,6 +3350,9 @@ void mmc_start_host(struct mmc_host *host)
 		mmc_detect_change(host, msecs_to_jiffies(2000));
 	}
 	else
+#endif
+#if defined (CONFIG_BCM4354)
+	if ( 0 != strcmp(mmc_hostname(host),"mmc1"))
 #endif
 	mmc_detect_change(host, 0);
 }
@@ -3709,7 +3716,7 @@ int mmc_pm_notify(struct notifier_block *notify_block,
 	switch (mode) {
 	case PM_HIBERNATION_PREPARE:
 	case PM_SUSPEND_PREPARE:
-        case PM_RESTORE_PREPARE:
+	case PM_RESTORE_PREPARE:
 		if (host->card && mmc_card_mmc(host->card)) {
 			mmc_claim_host(host);
 			err = mmc_stop_bkops(host->card);
