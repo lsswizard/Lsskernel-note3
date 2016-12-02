@@ -23,9 +23,10 @@ cat << CTAG
 		Added Frandom,
 		Improved Interactive Governor,
 		Added yankactive Governor,
-		Added Smartaxx and Smartaxx eps governors,
+		Added Smartmaxx and Smartmaxx eps governors,
 		Added Impulse Governor,
-		Added Intelli Thermal v2,
+		Added Arteractive Governor,
+		Added Intelli Thermal v1,
 		Added Msm_Hotplug,
 		Added Bricked_Hotplug,
 		Added Arch power and Gentle Fair Sleepers toggles - Disabled by default,
@@ -40,7 +41,7 @@ cat << CTAG
 	}},
 	{ SPane:{
 		title:"Source Code",
-		description:"Source code is available at https://github.com/lsswizard/Lsskernel-note3 "
+		description:"Source code is available at https://github.com/lsswizard/Lsskernel-note3"
 	}},
 	{ SLiveLabel:{
 		refresh:10000,

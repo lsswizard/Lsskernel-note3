@@ -63,7 +63,7 @@ cat << CTAG
 	}},
 	{ SButton:{
 		label:"Show pvsX",
-		action:"show pvs"
+		action:"show speedbin"
 	}},
 	]
 }
