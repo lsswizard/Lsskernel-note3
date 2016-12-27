@@ -16,7 +16,8 @@ cat << CTAG
 		default:Stock,
 		description: "MSM Hotplug is hotplug driver that hotplug cores based on system load. Bricked hotplug is conservative hotplug driver. Stock will let system ROM to decide hotplug mechanism; it is dependent of mpdecision present within ROM.",
 		action:"hotplug_select /data/.lsskernel/hotplug_prof",
-		values:[ Stock, MSM_Hotplug, Bricked_Hotplug ],
+		values:[ Stock, MSM_Hotplug, Bricked_Hotplug, ThunderPlug 
+		],
 	}},
 	{ SSeekBar:{
 		title:"Touch Boosted CPUs",

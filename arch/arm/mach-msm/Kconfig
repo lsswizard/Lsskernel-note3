@@ -37,7 +37,6 @@ config ARCH_MSM8974
 	select MSM_RPM_LOG
 	select ARCH_WANT_KMAP_ATOMIC_FLUSH
 	select KRAIT_REGULATOR
-	select HAS_MACH_MEMUTILS
 	select ENABLE_VMALLOC_SAVINGS
 	select HAS_MACH_MEMUTILS
 endmenu
@@ -2072,9 +2071,10 @@ config MSM_LIMITER
 	  The MSM Frequency Limiter Driver controls max frequency limit for each CPU
 	  to desired value on suspend/resume
 
-config HAS_MACH_MEMUTILS
-	default y
-	bool "Motorola MSM memcpy enhancements"
+config THUNDERPLUG_CONTROL
+	bool "Enable plugging down/up of cores based on load per core"
+	depends on SMP && HOTPLUG_CPU
+	default n
 	help
-	Faster memcpy performance for Krait
+	  This driver hotplugs cpu cores based on per-core load
 endif

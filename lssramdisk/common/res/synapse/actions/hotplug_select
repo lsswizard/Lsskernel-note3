@@ -1,5 +1,9 @@
 BB=/sbin/busybox;
 
+if [ "$($BB mount | grep rootfs | cut -c 26-27 | grep -c ro)" -eq "1" ]; then
+	$BB mount -o remount,rw /;
+fi;
+
 if [[ ! -z $2 ]]; then
 	$BB echo $2 > $1;
 	if [  $2 == "Stock" ] &&
@@ -45,6 +49,17 @@ if [[ ! -z $2 ]]; then
 			fi
 			$BB sleep 1;
 			echo "1" > /sys/kernel/msm_mpdecision/conf/enabled;
+	elif [  $2 == "ThunderPlug" ]; then
+			stop mpdecision;
+			echo "0" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
+			echo "0" > /sys/module/msm_hotplug/msm_enabled;
+			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
+				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			$BB sleep 1;
+			if [ -e /sys/kernel/thunderplug/hotplug_enabled ]; then
+				echo "1" > /sys/kernel/thunderplug/hotplug_enabled;
+			fi
 	else
 			echo "0" > /sys/module/msm_hotplug/msm_enabled;
 			if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
@@ -52,6 +67,9 @@ if [[ ! -z $2 ]]; then
 			fi
 			if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
 				echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+			fi
+			if [ -e /sys/kernel/thunderplug/hotplug_enabled ]; then
+				echo "0" > /sys/kernel/thunderplug/hotplug_enabled;
 			fi
 			$BB sleep 1;
 			echo "1" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;
@@ -67,12 +85,17 @@ elif [ -e /sys/kernel/msm_mpdecision/conf/enabled ] && [ $(expr `cat /sys/kernel
 	echo "Bricked_Hotplug"
 elif [ $(expr `cat /sys/module/msm_hotplug/msm_enabled`) -eq "1" ]; then
 	echo "MSM_Hotplug"
+elif [ -e /sys/kernel/thunderplug/hotplug_enabled ] && [ $(expr `cat /sys/kernel/thunderplug/hotplug_enabled`) -eq "1" ]; then
+echo "ThunderPlug"
 else
-	if [ -e /sys/kernel/intelli_plug/intelli_plug_active ]; then
-		echo "0" > /sys/kernel/intelli_plug/intelli_plug_active;
+	if [ -e /sys/kernel/thunderplug/hotplug_enabled ]; then
+		echo "0" > /sys/kernel/thunderplug/hotplug_enabled;
 	fi
 	if [ -e /sys/kernel/msm_mpdecision/conf/enabled ]; then
 		echo "0" > /sys/kernel/msm_mpdecision/conf/enabled;
+	fi
+	if [ -e /sys/kernel/thunderplug/hotplug_enabled ]; then
+		echo "0" > /sys/kernel/thunderplug/hotplug_enabled;
 	fi
 	echo "0" > /sys/module/msm_hotplug/msm_enabled;
 	echo "1" > /sys/devices/system/cpu/cpu0/rq-stats/hotplug_enable;

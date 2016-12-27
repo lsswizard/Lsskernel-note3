@@ -265,10 +265,11 @@ obj-$(CONFIG_PERFMAP) += perfmap.o
 
 obj-$(CONFIG_SEC_BSP) += sec_bsp.o
 
-ifdef CONFIG_ARCH_MSM8974
+ifdef CONFIG_ARCH_MSM8974 
 	obj-$(CONFIG_SEC_THERMISTOR) += sec_thermistor.o msm8974-thermistor.o
 endif
 
 obj-$(CONFIG_HAS_MACH_MEMUTILS) += memutils/
 obj-$(CONFIG_BRICKED_HOTPLUG) += bricked_hotplug.o
 obj-$(CONFIG_ZEN_DECISION) += msm_zen_decision.o
+obj-$(CONFIG_THUNDERPLUG_CONTROL) += thunderplug.o
