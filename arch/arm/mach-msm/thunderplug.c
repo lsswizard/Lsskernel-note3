@@ -84,7 +84,7 @@ static struct thunder_param_struct {
 } thunder_param = {
 	.cpus_boosted = DEFAULT_NR_CPUS_BOOSTED,
 	.boost_lock_dur = DEFAULT_BOOST_LOCK_DUR,
-	.suspend_cpu_num = 3,
+	.suspend_cpu_num = 2,
 	.resume_cpu_num = (NR_CPUS -1),
 	.max_core_online = NR_CPUS,
 	.min_core_online = 1,
