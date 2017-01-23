@@ -56,13 +56,11 @@ static int kgsl_sync_pt_has_signaled(struct sync_pt *pt)
 		 (struct kgsl_sync_timeline *) pt->parent;
 	unsigned int ts = kpt->timestamp;
 	unsigned int last_ts = ktimeline->last_timestamp;
-	int ret = 0;
-
-	spin_lock(&ktimeline->lock);
-	ret = (timestamp_cmp(last_ts, ts) >= 0);
-	spin_unlock(&ktimeline->lock);
-
-	return ret;
+	if (timestamp_cmp(last_ts, ts) >= 0) {
+		/* signaled */
+		return 1;
+	}
+	return 0;
 }
 
 static int kgsl_sync_pt_compare(struct sync_pt *a, struct sync_pt *b)
@@ -262,11 +260,8 @@ static void kgsl_sync_timeline_value_str(struct sync_timeline *sync_timeline,
 		(struct kgsl_sync_timeline *) sync_timeline;
 	unsigned int timestamp_retired = kgsl_sync_get_timestamp(ktimeline,
 		KGSL_TIMESTAMP_RETIRED);
-
-	spin_lock(&ktimeline->lock);
 	snprintf(str, size, "%u retired:%u", ktimeline->last_timestamp,
 		timestamp_retired);
-	spin_unlock(&ktimeline->lock);
 }
 
 static void kgsl_sync_pt_value_str(struct sync_pt *sync_pt,
@@ -327,7 +322,6 @@ int kgsl_sync_timeline_create(struct kgsl_context *context)
 	ktimeline->last_timestamp = 0;
 	ktimeline->device = context->device;
 	ktimeline->context_id = context->id;
-	spin_lock_init(&ktimeline->lock);
 
 	return 0;
 }
@@ -338,11 +332,8 @@ void kgsl_sync_timeline_signal(struct sync_timeline *timeline,
 	struct kgsl_sync_timeline *ktimeline =
 		(struct kgsl_sync_timeline *) timeline;
 
-	spin_lock(&ktimeline->lock);
 	if (timestamp_cmp(timestamp, ktimeline->last_timestamp) > 0)
 		ktimeline->last_timestamp = timestamp;
-	spin_unlock(&ktimeline->lock);
-
 	sync_timeline_signal(timeline);
 }
 
