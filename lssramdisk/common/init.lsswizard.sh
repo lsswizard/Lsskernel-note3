@@ -53,7 +53,7 @@ echo "2265600" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 #
 # scaling_min_freq
 #
-echo "288000" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo "287000" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 #
 # cpu governor
@@ -69,11 +69,11 @@ echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boost
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boostpulse
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
 echo "300" > /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-echo "288000" > /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+echo "287000" > /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/max_freq_hysteresis
 echo "0" > /sys/devices/system/cpu/cpufreq/interactive/align_windows
 echo "80000" > /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-echo "1 288000:32 400000:34 600000:40 700000:44 800000:49 900000:55 1100000:64 1400000:79 1700000:90 1900000:99" > /sys/devices/system/cpu/cpufreq/interactive/target_loads
+echo "1 287000:32 400000:34 600000:40 700000:44 800000:49 900000:55 1100000:64 1400000:79 1700000:90 1900000:99" > /sys/devices/system/cpu/cpufreq/interactive/target_loads
 echo "60000" > /sys/devices/system/cpu/cpufreq/interactive/timer_rate
 echo "-1" > /sys/devices/system/cpu/cpufreq/interactive/timer_slack
 sleep 1
@@ -95,13 +95,13 @@ echo "westwood" > /proc/sys/net/ipv4/tcp_congestion_control
 #
 # internal memory io scheduler
 #
-echo "cfq" > /sys/block/mmcblk0/queue/scheduler
+echo "sio" > /sys/block/mmcblk0/queue/scheduler
 
 #
 # external memory io scheduler
 #
 
-echo "cfq" > /sys/block/mmcblk1/queue/scheduler
+echo "sio" > /sys/block/mmcblk1/queue/scheduler
 
 #
 # mmc crc
