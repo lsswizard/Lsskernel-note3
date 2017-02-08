@@ -56,6 +56,7 @@ delete_recursive("/data/app-lib/com.af.synapse-2");
 delete_recursive("/data/app-lib/com.af.synapse-3");
 delete_recursive("/data/app-lib/com.af.synapse-4");
 delete_recursive("/data/app-lib/com.af.synapse-5");
+delete("/system/etc/init.d/00swapon");
 ui_print(" Installing Synapse app ... ");
 package_extract_dir("data", "/data");
 set_perm(1000, 1000, 0755, "/data/app/com.af.synapse-1");
