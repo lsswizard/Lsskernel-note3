@@ -16,7 +16,6 @@ show_progress(0.500000, 0);
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/etc/init.d");
 set_perm(0, 0, 0755, "/system/bin/lpm");
-set_perm(0, 0, 0777, "/system/etc/init.d/00swapon");
 set_perm(0, 0, 0777, "/system/etc/init.d/01CPU_Optimizer");
 ui_print(" Cleaning Cache ...");
 delete_recursive("/cache");
