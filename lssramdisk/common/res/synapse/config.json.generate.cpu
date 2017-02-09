@@ -50,9 +50,9 @@ cat << CTAG
 		description:"Define the min frequency, the CPU should scale down to.",
 		unit:" Mhz",
 		weight:0.001,
-		default:288000,
+		default:287000,
 		action:"cpu /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
-		values:[288000, 300000, 422400, 652800, 729600, 883200, 960000]
+		values:[287000, 300000, 422400, 652800, 729600, 883200, 960000]
 	}},
 	{ SSpacer:{
 		height:1
