@@ -3,7 +3,7 @@
 #define DEFAULT_SUSPEND_DEFER_TIME	10 
 #define DEFAULT_SUSPEND_FREQUENCY	729600
 #define DEFAULT_RESUME_FREQUENCY	2265000
-#define DEFAULT_MIN_FREQUENCY		288000
+#define DEFAULT_MIN_FREQUENCY		287000
 
 static struct cpu_limit {
 	unsigned int limiter_enabled;

@@ -15,6 +15,9 @@
 #
 ###################### CONFIG ######################
 
+# Switch Java to version 7
+sudo archlinux-java set java-7-openjdk
+
 # root directory of idleKernel git repo (default is this script's location)
 RDIR=$(pwd)
 

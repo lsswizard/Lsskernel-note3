@@ -9,9 +9,6 @@ if [[ ! -z $2 ]]; then
 	if [ -e /sys/kernel/msm_mpdecision/conf/$1 ]; then
 		echo $2 > /sys/kernel/msm_mpdecision/conf/$1 2> /dev/null;
 	fi
-	if [ -e /sys/kernel/thunderplug/$1 ]; then
-		echo $2 > /sys/kernel/thunderplug/$1 2> /dev/null;
-	fi
 fi
 if [ -e /sys/module/msm_hotplug/$1 ] &&
 	[ $(expr `cat /sys/module/msm_hotplug/msm_enabled`) -eq "1" ]; then
@@ -24,11 +21,4 @@ elif [ -e /sys/kernel/msm_mpdecision/conf/$1 ] &&
 	echo `cat /sys/kernel/msm_mpdecision/conf/$1`
 else
 	echo `cat /sys/module/msm_hotplug/$1`
-fi
-
-if [ -e /sys/kernel/thunderplug/$1 ] &&
-	[ $(expr `cat /sys/kernel/thunderplug/hotplug_enabled`) -eq "1" ]; then
-	echo `cat /sys/kernel/thunderplug/$1`
-else
-	echo `cat /sys/kernel/thunderplug/$1`
 fi
