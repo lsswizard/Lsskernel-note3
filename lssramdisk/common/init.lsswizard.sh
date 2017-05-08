@@ -110,7 +110,7 @@ echo "sio" > /sys/block/mmcblk1/queue/scheduler
 echo "Y" > /sys/module/mmc_core/parameters/use_spi_crc
 
 echo "0" > /sys/module/msm_hotplug/msm_enabled
-echo "Y" > /sys/module/cpu_boost/parameters/cpuboost_enable
+echo "N" > /sys/module/cpu_boost/parameters/cpuboost_enable
 
 
 # Ghost's Battery optimizations
