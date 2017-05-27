@@ -16,7 +16,7 @@
 ###################### CONFIG ######################
 
 # Switch Java to version 7
-sudo archlinux-java set java-7-openjdk
+archlinux-java set java-7-openjdk
 
 # root directory of idleKernel git repo (default is this script's location)
 RDIR=$(pwd)
@@ -170,6 +170,8 @@ DO_BUILD()
 	}
 	if [ $MAKE_ZIP -eq 1 ]; then CREATE_ZIP; fi
 	if [ $MAKE_TAR -eq 1 ]; then CREATE_TAR; fi
+	# Switch back Java to version 8
+	archlinux-java set java-8-openjdk
 }
 
 DO_BUILD

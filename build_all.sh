@@ -16,6 +16,9 @@
 #
 ###################### CONFIG ######################
 
+# Switch Java to version 7
+archlinux-java set java-7-openjdk
+
 # root directory of idleKernel git repo (default is this script's location)
 RDIR=$(pwd)
 ccache -C
@@ -154,5 +157,6 @@ do
 		DO_BUILD
 	fi
 done;
-
+# Switch Java back to version 78
+archlinux-java set java-8-openjdk
 echo "Finished!"
