@@ -26,8 +26,8 @@
 #include <linux/i2c/synaptics_rmi.h>
 #include <linux/regulator/consumer.h>
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#include <linux/earlysuspend.h>
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
 #endif
 
 #if defined(CONFIG_INPUT_BOOSTER)
@@ -1117,8 +1117,8 @@ struct synaptics_rmi4_data {
 	struct mutex rmi4_reflash_mutex;
 	struct timer_list f51_finger_timer;
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-	struct early_suspend early_suspend;
+#ifdef CONFIG_POWERSUSPEND
+	struct power_suspend power_suspend;
 #endif
 	const char *firmware_name;
 
