@@ -436,7 +436,7 @@ static void reduce_input_current(struct max77888_charger_data *charger, int cur)
 	u8 set_value;
 	unsigned int min_input_current = 0;
 
-	if ((!charger->is_charging) || mutex_is_locked(&charger->ops_lock)) 
+	if ((!charger->is_charging) || mutex_is_locked(&charger->ops_lock))
 		return;
 	set_reg = MAX77888_CHG_REG_CHG_CNFG_09;
 	min_input_current = MINIMUM_INPUT_CURRENT;
@@ -615,7 +615,7 @@ static int max77888_get_health_state(struct max77888_charger_data *charger)
 			state = POWER_SUPPLY_HEALTH_OVERVOLTAGE;
 		} else if (((vbus_state == 0x0) || (vbus_state == 0x01)) &&(chg_dtls & 0x08) && \
 				(chg_cnfg_00 & MAX77888_MODE_BUCK) && \
-				(chg_cnfg_00 & MAX77888_MODE_CHGR)) { 
+				(chg_cnfg_00 & MAX77888_MODE_CHGR)) {
 			pr_info("%s: vbus is under\n", __func__);
 			state = POWER_SUPPLY_HEALTH_UNDERVOLTAGE;
 		} else if((value.intval == POWER_SUPPLY_HEALTH_UNDERVOLTAGE) && \
@@ -1096,7 +1096,7 @@ static void max77888_chgin_isr_work(struct work_struct *work)
 				} else if (((chgin_dtls == 0x0) || (chgin_dtls == 0x01)) &&(chg_dtls & 0x08) && \
 						(chg_cnfg_00 & MAX77888_MODE_BUCK) && \
 						(chg_cnfg_00 & MAX77888_MODE_CHGR) && \
-						(battery_health != POWER_SUPPLY_HEALTH_UNDERVOLTAGE)) { 
+						(battery_health != POWER_SUPPLY_HEALTH_UNDERVOLTAGE)) {
 					pr_info("%s, vbus_state : 0x%d, chg_state : 0x%d\n", __func__, chgin_dtls, chg_dtls);
 					pr_info("%s: vBus is undervoltage\n", __func__);
 					value.intval = POWER_SUPPLY_HEALTH_UNDERVOLTAGE;

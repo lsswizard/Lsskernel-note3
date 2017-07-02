@@ -1769,7 +1769,7 @@ static void smb1357_charger_otg_control(
 void smb1357_charger_shutdown(struct i2c_client *client)
 {
 	pr_info("%s: smb1357 Charging Disabled\n", __func__);
-	
+
 	smb1357_charger_masked_write_reg(client, CFG_E_REG,
 		HVDCP_ADAPTER_MASK, HVDCP_ADAPTER_5V);
 	return;

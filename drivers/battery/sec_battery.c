@@ -107,7 +107,6 @@ static char *pm_batt_supplied_to[] = {
 };
 #endif
 
-
 static enum power_supply_property sec_battery_props[] = {
 	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
