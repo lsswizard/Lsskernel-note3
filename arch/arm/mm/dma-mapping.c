@@ -487,6 +487,7 @@ static void *__alloc_from_pool(size_t size, struct page **ret_page)
 	if (pageno < pool->nr_pages) {
 		bitmap_set(pool->bitmap, pageno, count);
 		ptr = pool->vaddr + PAGE_SIZE * pageno;
+		memset(ptr, 0, size);
 		*ret_page = pool->page + pageno;
 	}
 	spin_unlock_irqrestore(&pool->lock, flags);
@@ -754,7 +755,7 @@ void tima_cache_clean_setway(unsigned int reg_c7)
 {
         __asm__ __volatile__ (
                         "mov    r0, %0\n"
-                        "mcr	p15, 0, r0, c7, c10, 2\n"		 
+                        "mcr	p15, 0, r0, c7, c10, 2\n"
                         ::"r"(reg_c7):"r0");
 }
 
