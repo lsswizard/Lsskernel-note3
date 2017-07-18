@@ -15,6 +15,10 @@
 #include <linux/battery/sec_charger.h>
 #include <linux/of_gpio.h>
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
+#include <linux/battery/fastchg.h>
+#endif
+
 static struct device_attribute sec_charger_attrs[] = {
 	SEC_CHARGER_ATTR(reg),
 	SEC_CHARGER_ATTR(data),
@@ -67,6 +71,10 @@ static int sec_chg_set_property(struct power_supply *psy,
 	struct sec_charger_info *charger =
 		container_of(psy, struct sec_charger_info, psy_chg);
 	union power_supply_propval input_value;
+	int set_charging_current, set_charging_current_max;
+	const int usb_charging_current = charger->pdata->charging_current[
+		POWER_SUPPLY_TYPE_USB].fast_charging_current;
+	u8 chg_cnfg_00;
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
@@ -91,6 +99,66 @@ static int sec_chg_set_property(struct power_supply *psy,
 			charger->charging_current =
 				charger->pdata->charging_current[
 				val->intval].fast_charging_current;
+#ifdef CONFIG_FORCE_FAST_CHARGE
+			if (force_fast_charge == FAST_CHARGE_FORCE_AC) {
+				// use default fast charge current settings
+				switch(charger->cable_type) {
+				case POWER_SUPPLY_TYPE_USB:
+				case POWER_SUPPLY_TYPE_USB_DCP:
+				case POWER_SUPPLY_TYPE_USB_CDP:
+				case POWER_SUPPLY_TYPE_USB_ACA:
+				case POWER_SUPPLY_TYPE_CARDOCK:
+				case POWER_SUPPLY_TYPE_OTG:
+					// these are USB connections, apply 1.2A for all of them
+					charger->charging_current_max = USB_CHARGE_1200;
+					charger->charging_current = USB_CHARGE_1200;
+					break;
+				case POWER_SUPPLY_TYPE_WIRELESS:
+					// this is a wireless charging connection, apply 1.2A
+					charger->charging_current_max = WIRELESS_CHARGE_1200;
+					charger->charging_current = WIRELESS_CHARGE_1200;
+					break;
+                                case POWER_SUPPLY_TYPE_MAINS:
+					// this is an AC connection, apply custom AC current
+					charger->charging_current_max = ac_charge_level;
+					// keep the 300mA/h delta, but never go above 2.1A/h
+					charger->charging_current = min(ac_charge_level + 300, MAX_CHARGE_LEVEL);
+					break;
+				default:
+					// don't do anything for any other kind of connections and don't touch when type is unknown
+					break;
+				}
+			} else if (force_fast_charge == FAST_CHARGE_FORCE_CUSTOM_MA) {
+				// use user defined fast charge current settings
+				switch(charger->cable_type) {
+				case POWER_SUPPLY_TYPE_USB:
+				case POWER_SUPPLY_TYPE_USB_DCP:
+				case POWER_SUPPLY_TYPE_USB_CDP:
+				case POWER_SUPPLY_TYPE_USB_ACA:
+				case POWER_SUPPLY_TYPE_CARDOCK:
+				case POWER_SUPPLY_TYPE_OTG:
+					// these are USB connections, apply custom USB current for all of them
+					charger->charging_current_max = usb_charge_level;
+					charger->charging_current = usb_charge_level;
+					break;
+				case POWER_SUPPLY_TYPE_WIRELESS:
+					// this is a wireless charging connection, apply custom wireless current
+					charger->charging_current_max = wireless_charge_level;
+					// keep the 100mA/h delta, but never go above 2.1A/h
+					charger->charging_current = min(wireless_charge_level + 100, MAX_CHARGE_LEVEL);
+					break;
+				case POWER_SUPPLY_TYPE_MAINS:
+					// this is an AC connection, apply custom AC current
+					charger->charging_current_max = ac_charge_level;
+					// keep the 300mA/h delta, but never go above 2.1A/h
+					charger->charging_current = min(ac_charge_level + 300, MAX_CHARGE_LEVEL);
+					break;
+				default:
+					// don't do anything for any other kind of connections and don't touch when type is unknown
+					break;
+				}
+			}
+#endif
 		}
 
 		if (!sec_hal_chg_set_property(charger->client, psp, val))
