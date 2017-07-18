@@ -17,6 +17,10 @@
  */
 
 #include <linux/battery/sec_fuelgauge.h>
+#ifdef CONFIG_SENSORS_QPNP_ADC_CURRENT
+#include <linux/qpnp/qpnp-adc.h>
+extern int32_t max17048_qpnp_iadc_read(struct qpnp_iadc_result *result);
+#endif
 extern int poweroff_charging;
 
 #if defined(CONFIG_SEC_K_PROJECT)
@@ -394,13 +398,116 @@ static int max17048_get_soc(struct i2c_client *client)
 	return soc;
 }
 
+#ifdef CONFIG_SENSORS_QPNP_ADC_CURRENT
+static int sample_index = 0;
+static int adc_samples[AVER_SAMPLE_CNT] = {0,};
+static void store_adc_samples(int value)
+{
+	/* Let's not poison the array with invalid value. */
+	if (value <= 0)
+		return;
+
+	if (adc_samples[0] <= 0) {
+		int i;
+
+		for (i = 1; i < AVER_SAMPLE_CNT; i++)
+			adc_samples[i] = value;
+	}
+
+	adc_samples[sample_index] = value;
+
+	sample_index++;
+
+	if (sample_index >= AVER_SAMPLE_CNT)
+		sample_index = 0;
+}
+
+static int get_adc_average(void)
+{
+	int i, total = 0;
+
+	for (i = 0; i < AVER_SAMPLE_CNT; i++)
+		total += adc_samples[i];
+
+	return total / AVER_SAMPLE_CNT;
+}
+
+/* 15 Second delay */
+#define CHECK_DELAY 15000
+/* Trust me if you do not get it in 20, you will not get it never.
+ * Don't worry, Try again later.
+ */
+#define MAX_RETRIES 20
+static ktime_t last_check;
+static int prev_value = 0;
+static int qpnp_get_battery_current(void)
+{
+	struct qpnp_iadc_result i_result;
+	int adc_data = 0;
+	int i = 0, ret;
+	ktime_t _time;
+
+	_time = ktime_get();
+	if (ktime_to_ms(ktime_sub(_time, last_check)) < CHECK_DELAY)
+		/* Too frequent checks, return previous value. */
+		return prev_value;
+
+	while (1) {
+		ret = max17048_qpnp_iadc_read(&i_result);
+		if (ret) {
+			pr_err("%s: failed to read iadc\n", __func__);
+			goto err;
+		}
+
+		/* Set the limit of acceptable value to 100mA - 2000mA */
+		if (i_result.result_ua > 100000 &&
+		    i_result.result_ua < 2000000)
+			break;
+
+		/* Max retries exhausted */
+		if (i >= MAX_RETRIES)
+			goto err;
+
+		i++;
+	}
+
+	adc_data = (int)(i_result.result_ua / 1000); // Convert to mA
+
+	/* Store the value for later use. */
+	prev_value = adc_data;
+//	pr_info("%s: reported battery current_ua: %d, returned: %d\n",
+//	__func__, i_result.result_ua, prev_value);
+	last_check = ktime_get();
+
+err:
+	return prev_value;
+}
+#endif
+
 static int max17048_get_current(struct i2c_client *client)
 {
 	struct sec_fuelgauge_info *fuelgauge = i2c_get_clientdata(client);
 	union power_supply_propval value;
+#ifdef CONFIG_SENSORS_QPNP_ADC_CURRENT
+	union power_supply_propval value_bat;
+
+	psy_do_property("battery", get,
+		POWER_SUPPLY_PROP_STATUS, value_bat);
+
+	if(value_bat.intval == POWER_SUPPLY_STATUS_DISCHARGING) {
+		value.intval = qpnp_get_battery_current();
+		/* Save the value for average calculation. */
+		store_adc_samples(value.intval);
+	} else {
+		psy_do_property(fuelgauge->pdata->charger_name, get,
+			POWER_SUPPLY_PROP_CURRENT_NOW, value);
+		store_adc_samples(value.intval);
+	}
+#else
 
 	psy_do_property(fuelgauge->pdata->charger_name, get,
 		POWER_SUPPLY_PROP_CURRENT_NOW, value);
+#endif
 
 	return value.intval;
 }
@@ -444,8 +551,20 @@ static int max17048_get_current_average(struct i2c_client *client)
 	int vcell, soc, curr_avg;
 	int check_discharge;
 
+#ifdef CONFIG_SENSORS_QPNP_ADC_CURRENT
+	psy_do_property("battery", get,
+		POWER_SUPPLY_PROP_STATUS, value_bat);
+
+	if(value_bat.intval == POWER_SUPPLY_STATUS_DISCHARGING) {
+		value_chg.intval = get_adc_average();
+	} else {
+		psy_do_property(fuelgauge->pdata->charger_name, get,
+			POWER_SUPPLY_PROP_CURRENT_AVG, value_chg);
+	}
+#else
 	psy_do_property(fuelgauge->pdata->charger_name, get,
-		POWER_SUPPLY_PROP_CURRENT_NOW, value_chg);
+		POWER_SUPPLY_PROP_CURRENT_AVG, value_chg);
+#endif
 	psy_do_property("battery", get,
 		POWER_SUPPLY_PROP_HEALTH, value_bat);
 	vcell = max17048_get_vcell(client);
