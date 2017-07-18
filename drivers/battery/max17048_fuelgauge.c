@@ -403,10 +403,6 @@ static int sample_index = 0;
 static int adc_samples[AVER_SAMPLE_CNT] = {0,};
 static void store_adc_samples(int value)
 {
-	/* Let's not poison the array with invalid value. */
-	if (value <= 0)
-		return;
-
 	if (adc_samples[0] <= 0) {
 		int i;
 
@@ -414,12 +410,12 @@ static void store_adc_samples(int value)
 			adc_samples[i] = value;
 	}
 
+	if (sample_index >= AVER_SAMPLE_CNT)
+		sample_index = 0;
+
 	adc_samples[sample_index] = value;
 
 	sample_index++;
-
-	if (sample_index >= AVER_SAMPLE_CNT)
-		sample_index = 0;
 }
 
 static int get_adc_average(void)
@@ -475,6 +471,8 @@ static int qpnp_get_battery_current(void)
 
 	/* Store the value for later use. */
 	prev_value = adc_data;
+	/* Save the value for average calculation. */
+	store_adc_samples(prev_value);
 //	pr_info("%s: reported battery current_ua: %d, returned: %d\n",
 //	__func__, i_result.result_ua, prev_value);
 	last_check = ktime_get();
@@ -496,8 +494,6 @@ static int max17048_get_current(struct i2c_client *client)
 
 	if(value_bat.intval == POWER_SUPPLY_STATUS_DISCHARGING) {
 		value.intval = qpnp_get_battery_current();
-		/* Save the value for average calculation. */
-		store_adc_samples(value.intval);
 	} else {
 		psy_do_property(fuelgauge->pdata->charger_name, get,
 			POWER_SUPPLY_PROP_CURRENT_NOW, value);
