@@ -170,8 +170,6 @@ struct qpnp_iadc_chip {
 
 LIST_HEAD(qpnp_iadc_device_list);
 
-struct qpnp_iadc_chip *qpnp_iadc;
-
 enum qpnp_iadc_rsense_rds_workaround {
 	QPNP_IADC_RDS_DEFAULT_TYPEA,
 	QPNP_IADC_RDS_DEFAULT_TYPEB,
@@ -1160,23 +1158,6 @@ static int32_t qpnp_check_pmic_temp(struct qpnp_iadc_chip *iadc)
 	return rc;
 }
 
-/**
- * Helper for max17048 fuelgauge driver.
- * Returns the battery amps usage in ua.
- */
-int32_t max17048_qpnp_iadc_read(struct qpnp_iadc_result *result)
-{
-	enum qpnp_iadc_channels channel;
-
-	if (qpnp_iadc_is_valid(qpnp_iadc) < 0)
-		return -EPROBE_DEFER;
-
-	channel = qpnp_iadc->external_rsense ?
-			  EXTERNAL_RSENSE : INTERNAL_RSENSE;
-
-	return qpnp_iadc_read(qpnp_iadc, channel, result);
-}
-
 int32_t qpnp_iadc_read(struct qpnp_iadc_chip *iadc,
 				enum qpnp_iadc_channels channel,
 				struct qpnp_iadc_result *result)
@@ -1594,10 +1575,6 @@ static int __devinit qpnp_iadc_probe(struct spmi_device *spmi)
 	}
 
 	dev_set_drvdata(&spmi->dev, iadc);
-	/*
-	 * Keep the ref. for later use. For ex. max17048 driver helper.
-	 */
-	qpnp_iadc = iadc;
 
 	list_add(&iadc->list, &qpnp_iadc_device_list);
 	rc = qpnp_iadc_calibrate_for_trim(iadc, true);
@@ -1619,7 +1596,6 @@ fail:
 	}
 	hwmon_device_unregister(iadc->iadc_hwmon);
 	mutex_destroy(&iadc->adc->adc_lock);
-	qpnp_iadc = NULL;
 
 	return rc;
 }
