@@ -298,7 +298,8 @@ static int max17048_get_crate(struct i2c_client *client)
 	w_data = swab16(temp);
 
 	//0.208%/hr SOC change rate
-	crate = (w_data * 208) / 1000;
+	temp = (w_data & 0xff) * 208;
+	crate = temp / 1000;
 
 	dev_dbg(&client->dev,
 		"%s : crate (%d)\n", __func__, crate);
