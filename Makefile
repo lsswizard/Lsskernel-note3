@@ -126,10 +126,15 @@ PHONY += $(MAKECMDGOALS) sub-make
 $(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
 	$(Q)@:
 
+# KBUILD_RELSRC is the relative path from output to source; this was added so
+# that the absolute path to source files wouldn't get encoded in vmlinux and
+# module binaries
+SUB_KBUILD_SRC = $(if $(KBUILD_RELSRC),$(KBUILD_RELSRC),$(CURDIR))
+
 sub-make: FORCE
 	$(if $(KBUILD_VERBOSE:1=),@)$(MAKE) -C $(KBUILD_OUTPUT) \
-	KBUILD_SRC=$(CURDIR) \
-	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(CURDIR)/Makefile \
+	KBUILD_SRC=$(SUB_KBUILD_SRC) \
+	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(SUB_KBUILD_SRC)/Makefile \
 	$(filter-out _all sub-make,$(MAKECMDGOALS))
 
 # Leave processing to above invocation of make
@@ -162,7 +167,7 @@ CCACHE := ccache
 # SUBARCH tells the usermode build what the underlying arch is.  That is set
 # first, and if a usermode build is happening, the "ARCH=um" on the command
 # line overrides the setting of ARCH below.  If a native build is happening,
-# then ARCH is assigned, getting whatever value it gets normally, and 
+# then ARCH is assigned, getting whatever value it gets normally, and
 # SUBARCH is subsequently ignored.
 
 SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
@@ -245,8 +250,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = $(CCACHE) gcc
 HOSTCXX      = $(CCACHE) g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -pipe
-HOSTCXXFLAGS = -O2 -fgcse-las -fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -pipe
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -fgcse-las -std=gnu99
+HOSTCXXFLAGS = -O2 -fgcse-las
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -289,7 +294,7 @@ export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
 #         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
 #
 # If $(quiet) is empty, the whole command will be printed.
-# If it is set to "quiet_", only the short version will be printed. 
+# If it is set to "quiet_", only the short version will be printed.
 # If it is set to "silent_", nothing will be printed at all, since
 # the variable $(silent_cmd_cc_o_c) doesn't exist.
 #
@@ -328,22 +333,22 @@ include $(srctree)/scripts/Kbuild.include
 
 # Make variables (CC, etc...)
 
-AS				= $(CROSS_COMPILE)as
-LD				= $(CROSS_COMPILE)ld
-REAL_CC			= $(CCACHE) $(CROSS_COMPILE)gcc
-CPP				= $(CC) -E
-AR				= $(CROSS_COMPILE)ar
-NM				= $(CROSS_COMPILE)nm
-STRIP			= $(CROSS_COMPILE)strip
-OBJCOPY			= $(CROSS_COMPILE)objcopy
-OBJDUMP			= $(CROSS_COMPILE)objdump
-AWK				= awk
-GENKSYMS		= scripts/genksyms/genksyms
-INSTALLKERNEL   := installkernel
-DEPMOD			= /sbin/depmod
-KALLSYMS		= scripts/kallsyms
-PERL			= perl
-CHECK			= sparse
+AS		= $(CROSS_COMPILE)as
+LD		= $(CROSS_COMPILE)ld
+REAL_CC		= $(CCACHE) $(CROSS_COMPILE)gcc
+CPP		= $(CC) -E
+AR		= $(CROSS_COMPILE)ar
+NM		= $(CROSS_COMPILE)nm
+STRIP		= $(CROSS_COMPILE)strip
+OBJCOPY		= $(CROSS_COMPILE)objcopy
+OBJDUMP		= $(CROSS_COMPILE)objdump
+AWK		= awk
+GENKSYMS	= scripts/genksyms/genksyms
+INSTALLKERNEL  := installkernel
+DEPMOD		= /sbin/depmod
+KALLSYMS	= scripts/kallsyms
+PERL		= perl
+CHECK		= sparse
 
 ifeq ($(CONFIG_CRYPTO_FIPS),)
  READELF	= $(CROSS_COMPILE)readelf
@@ -356,19 +361,45 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-
-KERNEL_FLAGS	= -marm -mtune=cortex-a15 -mcpu=cortex-a15 -mfpu=neon-vfpv4 \
-		  -mvectorize-with-neon-quad -fgcse-after-reload -fgcse-sm \
-		  -fgcse-las -ftree-loop-im -ftree-loop-ivcanon -fweb \
-		  -frename-registers -ftree-loop-linear -ftree-vectorize \
-		  -fmodulo-sched -ffast-math -funsafe-math-optimizations
-
-MODFLAGS	= -DMODULE $(KERNELFLAGS)
-CFLAGS_MODULE	= $(MODFLAGS)
-AFLAGS_MODULE	= $(MODFLAGS)
-CFLAGS_KERNEL = $(KERNELFLAGS) -fpredictive-commoning
-AFLAGS_KERNEL = $(KERNELFLAGS)
+CFLAGS_MODULE   =
+AFLAGS_MODULE   =
+LDFLAGS_MODULE  =
+CFLAGS_KERNEL	=
+AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
+
+# An -O2 extended optimization set for ARM devices,
+# more precisely the Cortex-A15 with NEON support.
+ifdef CONFIG_FAST_LANE
+ifeq ($(CONFIG_FAST_LANE_ARM),y)
+FAST_LANE_ARM_OPT := -mtune=cortex-a15 \
+	-mcpu=cortex-a15 \
+	-mfpu=neon-vfpv4 \
+	-marm \
+	-munaligned-access \
+	-mvectorize-with-neon-quad
+else
+FAST_LANE_ARM_OPT :=
+endif
+FAST_LANE_OPT_FLAGS := -g0 \
+	-DNDEBUG \
+	-ffast-math \
+	-fforce-addr \
+	-fgcse-after-reload \
+	-fgcse-las \
+	-fgcse-sm \
+	-fivopts \
+	-fno-strict-aliasing \
+	-fomit-frame-pointer \
+	-fpredictive-commoning \
+	-fsingle-precision-constant \
+	-fsched-spec-load \
+	-fsched-spec-load-dangerous \
+	-ftree-partial-pre \
+	-ftree-vectorize \
+	-funsafe-math-optimizations \
+	$(FAST_LANE_ARM_OPT)
+endif
 
 # Use LINUXINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
@@ -380,30 +411,35 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-			-fno-strict-aliasing -fno-common \
+		   -fno-strict-aliasing -fno-common \
+		   -fomit-frame-pointer \
 		   -Werror-implicit-function-declaration \
-		   -Wno-shift-overflow \
-		   -Wno-tautological-compare \
-		   -Wno-unused-const-variable \
-		   -Wno-bool-compare \
-		   -Wno-logical-not-parentheses \
-		   -Wno-parentheses \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
-		   -std=gnu89 -fno-pic \
 		   -fmodulo-sched -fmodulo-sched-allow-regmoves -fno-tree-vectorize -ffast-math \
-           -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
- 		   -fno-aggressive-loop-optimizations \
- 		   -fno-delete-null-pointer-checks \
-			$(KERNELFLAGS)
-			
-KBUILD_AFLAGS_KERNEL := $(KERNELFLAGS)
-KBUILD_CFLAGS_KERNEL := $(KERNELFLAGS)
-KBUILD_AFLAGS   := -D__ASSEMBLY__
-KBUILD_AFLAGS_MODULE := $(MODFLAGS)
-KBUILD_CFLAGS_MODULE := $(MODFLAGS)
-KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
+		   -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
+		   -Wno-sizeof-pointer-memaccess \
+		   -Wpsabi \
+		   -Wno-bool-compare -Wno-logical-not-parentheses -Wno-incompatible-pointer-types \
+		   -Wno-tautological-compare -Wno-unused-const-variable \
+		   -Wno-misleading-indentation \
+		   -Wno-pointer-compare \
+		   -Wno-format-truncation -Wno-duplicate-decl-specifier -Wno-memset-elt-size \
+		   -Wno-bool-operation -Wno-int-in-bool-context -Wno-parentheses \
+		   -Wno-switch-unreachable -Wno-stringop-overflow -Wno-format-overflow \
+		   $(FAST_LANE_OPT_FLAGS) \
+		   -std=gnu89
 
+KBUILD_CFLAGS	+=  -s -pipe -fno-pic -mfloat-abi=softfp
+KBUILD_CFLAGS	+= -Wno-unused -O2 -falign-functions=16 -falign-loops=16
+KBUILD_CFLAGS	+= --param l1-cache-size=32 --param l1-cache-line-size=32 --param l2-cache-size=2048
+
+KBUILD_AFLAGS_KERNEL := $(FAST_LANE_OPT_FLAGS)
+KBUILD_CFLAGS_KERNEL := $(FAST_LANE_OPT_FLAGS)
+KBUILD_AFLAGS   := -D__ASSEMBLY__
+KBUILD_AFLAGS_MODULE  := -DMODULE
+KBUILD_CFLAGS_MODULE  := -DMODULE -fno-pic
+KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
@@ -590,7 +626,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -O2 -Wno-array-bounds $(call cc-disable-warning,maybe-uninitialized,)
+KBUILD_CFLAGS	+= -O2 -falign-functions=16 -falign-loops=16 $(call cc-disable-warning,maybe-uninitialized,)
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
@@ -599,10 +635,27 @@ ifneq ($(CONFIG_FRAME_WARN),0)
 KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
 endif
 
-# Force gcc to behave correct even for buggy distributions
-ifndef CONFIG_CC_STACKPROTECTOR
-KBUILD_CFLAGS += $(call cc-option, -fno-stack-protector)
+# Tell gcc to never replace conditional load with a non-conditional one
+KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
+
+# Handle stack protector mode.
+ifdef CONFIG_CC_STACKPROTECTOR_REGULAR
+  stackp-flag := -fstack-protector
+  ifeq ($(call cc-option, $(stackp-flag)),)
+    $(warning Cannot use CONFIG_CC_STACKPROTECTOR: \
+	      -fstack-protector not supported by compiler))
+  endif
+else ifdef CONFIG_CC_STACKPROTECTOR_STRONG
+  stackp-flag := -fstack-protector-strong
+  ifeq ($(call cc-option, $(stackp-flag)),)
+    $(warning Cannot use CONFIG_CC_STACKPROTECTOR_STRONG: \
+	      -fstack-protector-strong not supported by compiler)
+  endif
+else
+  # Force off for distro compilers that enable stack protector by default.
+  stackp-flag := $(call cc-option, -fno-stack-protector)
 endif
+KBUILD_CFLAGS += $(stackp-flag)
 
 # This warning generated too much noise in a regular build.
 # Use make W=1 to enable this warning (see scripts/Makefile.build)
@@ -838,8 +891,8 @@ define rule_vmlinux__
 	fi;
 	$(verify_kallsyms)
 
-	$(if $(CONFIG_CRYPTO_FIPS),						
-	@$(kecho) '  FIPS : Generating hmac of crypto and updating vmlinux... ';	
+	$(if $(CONFIG_CRYPTO_FIPS),
+	@$(kecho) '  FIPS : Generating hmac of crypto and updating vmlinux... ';
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/fips_crypto_hmac.sh $(objtree)/vmlinux $(objtree)/System.map)
 endef
 
@@ -888,7 +941,7 @@ endef
 # First command is ':' to allow us to use + in front of this rule
 cmd_ksym_ld = $(cmd_vmlinux__)
 define rule_ksym_ld
-	: 
+	:
 	+$(call cmd,vmlinux_version)
 	$(call cmd,vmlinux__)
 	$(Q)echo 'cmd_$@ := $(cmd_vmlinux__)' > $(@D)/.$(@F).cmd
@@ -968,7 +1021,7 @@ modpost-init := $(filter-out init/built-in.o, $(vmlinux-init))
 vmlinux.o: $(modpost-init) $(vmlinux-main) FORCE
 	$(call if_changed_rule,vmlinux-modpost)
 
-# The actual objects are generated when descending, 
+# The actual objects are generated when descending,
 # make sure no implicit rule kicks in
 $(sort $(vmlinux-init) $(vmlinux-main)) $(vmlinux-lds): $(vmlinux-dirs) ;
 
@@ -1037,7 +1090,8 @@ define filechk_utsrelease.h
 	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2;    \
 	  exit 1;                                                         \
 	fi;                                                               \
-	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";)
+	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";                  \
+	echo \#define SHORT_UTS_RELEASE \"$(KERNELVERSION)$(CONFIG_LOCALVERSION)\";)
 endef
 
 define filechk_version.h
@@ -1558,7 +1612,7 @@ endif
 	$(build)=$(build-dir) $(@:.ko=.o)
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
 
-# FIXME Should go into a make.lib or something 
+# FIXME Should go into a make.lib or something
 # ===========================================================================
 
 quiet_cmd_rmdirs = $(if $(wildcard $(rm-dirs)),CLEAN   $(wildcard $(rm-dirs)))
