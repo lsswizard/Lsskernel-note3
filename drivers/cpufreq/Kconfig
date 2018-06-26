@@ -176,6 +176,14 @@ config CPU_FREQ_DEFAULT_GOV_DARKNESS
 	bool "darkness"
 	select CPU_FREQ_GOV_DARKNES
 
+config CPU_FREQ_DEFAULT_GOV_LIONHEART
+
+	bool "lionheart"
+	select CPU_FREQ_GOV_LIONHEART
+	select CPU_FREQ_GOV_PERFORMANCE
+	help
+	  Use the CPUFreq governor 'lionheart' as default.
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -332,6 +340,14 @@ config CPU_FREQ_GOV_NIGHTMARE
 
 config CPU_FREQ_GOV_DARKNESS
 	tristate "'darkness' cpufreq policy governor"
+
+config CPU_FREQ_GOV_LIONHEART
+	tristate "'lionheart' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  'lionheart' - the lionheart governor
+
+	  If in doubt, say N.
 
 menu "ARM CPU frequency scaling drivers"
 depends on ARM
