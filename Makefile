@@ -370,17 +370,14 @@ CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 # An -O2 extended optimization set for ARM devices,
 # more precisely the Cortex-A15 with NEON support.
-ifdef CONFIG_FAST_LANE
-ifeq ($(CONFIG_FAST_LANE_ARM),y)
+
 FAST_LANE_ARM_OPT := -mtune=cortex-a15 \
 	-mcpu=cortex-a15 \
 	-mfpu=neon-vfpv4 \
 	-marm \
 	-munaligned-access \
 	-mvectorize-with-neon-quad
-else
-FAST_LANE_ARM_OPT :=
-endif
+
 FAST_LANE_OPT_FLAGS := -g0 \
 	-DNDEBUG \
 	-ffast-math \
@@ -399,7 +396,7 @@ FAST_LANE_OPT_FLAGS := -g0 \
 	-ftree-vectorize \
 	-funsafe-math-optimizations \
 	$(FAST_LANE_ARM_OPT)
-endif
+
 
 # Use LINUXINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option

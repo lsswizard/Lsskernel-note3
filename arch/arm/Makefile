@@ -34,6 +34,21 @@ MMUEXT		:= -nommu
 KBUILD_CFLAGS	+= $(call cc-option,-mno-unaligned-access)
 endif
 
+# Extended optimization set for ARM devices,
+# more precisely the Cortex-A15 with NEON support.
+FAST_LANE_ARM_OPT := -mtune=cortex-a15 \
+	-mcpu=cortex-a15 \
+	-mfpu=neon-vfpv4 \
+	-marm \
+	-munaligned-access \
+	-mvectorize-with-neon-quad
+FAST_LANE_OPT_FLAGS := -g0 \
+	-DNDEBUG \
+	-ftree-vectorize \
+	-funsafe-math-optimizations \
+	$(FAST_LANE_ARM_OPT)
+KBUILD_CFLAGS	+= $(FAST_LANE_OPT_FLAGS)
+
 ifeq ($(CONFIG_FRAME_POINTER),y)
 KBUILD_CFLAGS	+=-fno-omit-frame-pointer -mapcs -mno-sched-prolog
 endif
@@ -92,7 +107,7 @@ arch-$(CONFIG_CPU_32v3)		:=-D__LINUX_ARM_ARCH__=3 -march=armv3
 # keep things simpler, we don't bother with a fallback option if the compiler
 # doesn't even support -march=armv7-a, since in that situation we would have
 # bigger problems.
-arch-$(CONFIG_ARCH_MSM_KRAIT)	:=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-mcpu=cortex-a15,-march=armv7-a)
+arch-$(CONFIG_ARCH_MSM_KRAIT)	:=-D__LINUX_ARM_ARCH__=7 -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon
 
 # This selects how we optimise for the processor.
 tune-$(CONFIG_CPU_ARM610)		:=-mtune=arm610
@@ -115,7 +130,6 @@ tune-$(CONFIG_CPU_XSC3)			:=$(call cc-option,-mtune=xscale,-mtune=strongarm110) 
 tune-$(CONFIG_CPU_FEROCEON)		:=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
 tune-$(CONFIG_CPU_V6)			:=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
 tune-$(CONFIG_CPU_V6K)			:=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
-tune-$(CONFIG_ARCH_MSM_KRAIT)   :=-mtune=cortex-a15
 
 ifeq ($(CONFIG_AEABI),y)
 CFLAGS_ABI	:=-mabi=aapcs-linux -mno-thumb-interwork
