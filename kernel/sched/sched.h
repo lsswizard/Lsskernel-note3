@@ -1000,6 +1000,13 @@ static inline void dec_nr_running(struct rq *rq)
 #if defined(CONFIG_FAST_HOTPLUG) || defined(CONFIG_MSM_RUN_QUEUE_STATS_BE_CONSERVATIVE)
 	write_seqcount_end(&nr_stats->ave_seqcnt);
 #endif
+
+	if (rq->nr_running >= 2) {
+#ifdef CONFIG_SMP
+		if (!rq->rd->overload)
+			rq->rd->overload = true;
+#endif
+	}
 }
 
 extern void update_rq_clock(struct rq *rq);
